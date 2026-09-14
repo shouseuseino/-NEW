@@ -556,7 +556,28 @@
          <button onclick="getMarineWorld()" class="test-button">
            テスト：マリンワールド海の中道を取得
          </button>
-     <button onclick="showSelectedArea()" class="test-button">
+     // ========================================
+// 選んだ範囲の座標をコピーする
+// ========================================
+function showSelectedArea() {
+
+  let result = "const marineWorldArea = [\n";
+
+  selectedArea.forEach(([x, y]) => {
+    result += `  [${x}, ${y}],\n`;
+  });
+
+  result += "];";
+
+  // 座標をコピー
+  navigator.clipboard.writeText(result);
+
+  alert(
+    "選んだ " +
+    selectedArea.length +
+    " マスの座標をコピーしました！"
+  );
+}
   選んだ範囲の座標を見る
 </button>
           
