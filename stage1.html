@@ -549,7 +549,9 @@
          <button onclick="getMarineWorld()" class="test-button">
            テスト：マリンワールド海の中道を取得
          </button>
-     
+     <button onclick="showSelectedArea()" class="test-button">
+  選んだ範囲の座標を見る
+</button>
           
 
         </section>
@@ -862,6 +864,81 @@ document.getElementById("pixel-map").addEventListener("click", function(event) {
   // 座標を画面に表示
   alert("この場所の座標\nX = " + x + "\nY = " + y);
 });
+// ========================================
+// 範囲設定モード
+// クリックしたマスを選択して座標を保存する
+// ========================================
+
+// 選んだマスを保存する配列
+let selectedArea = [];
+
+// 地図をクリックしたとき
+document.getElementById("pixel-map").addEventListener("click", function(event) {
+
+  // クリックされたマスを取得
+  const cell = event.target;
+
+  // 地図のマス以外なら何もしない
+  if (!cell.classList.contains("map-cell")) {
+    return;
+  }
+
+  // 陸地以外は選べないようにする
+  if (!cell.classList.contains("land")) {
+    return;
+  }
+
+  // X・Y座標を取得
+  const x = Number(cell.dataset.x);
+  const y = Number(cell.dataset.y);
+
+  // すでに選択されているか確認
+  const index = selectedArea.findIndex(
+    point => point[0] === x && point[1] === y
+  );
+
+  if (index === -1) {
+
+    // まだ選んでいない場合
+    selectedArea.push([x, y]);
+
+    // 選択したマスを赤くする
+    cell.style.backgroundColor = "red";
+
+  } else {
+
+    // もう一度クリックしたら選択解除
+    selectedArea.splice(index, 1);
+
+    // 白に戻す
+    cell.style.backgroundColor = "white";
+  }
+
+  // コンソールに現在の座標を表示
+  console.log(selectedArea);
+});
+// ========================================
+// 選択した範囲の座標を表示
+// ========================================
+function showSelectedArea() {
+
+  let result = "const marineWorldArea = [\n";
+
+  selectedArea.forEach(([x, y]) => {
+    result += `  [${x}, ${y}],\n`;
+  });
+
+  result += "];";
+
+  console.log(result);
+
+  alert(
+    "選択したマス：" +
+    selectedArea.length +
+    "個\n\n" +
+    "座標はコンソールに表示しました"
+  );
+}
 </script>
 
 </body>
