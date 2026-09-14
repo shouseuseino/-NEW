@@ -564,6 +564,29 @@
 
   font-size: 14px;
 }
+/* ========================================
+   マップ上の目的地ピン
+======================================== */
+
+.map-pin {
+  position: absolute;
+
+  /* ピンの大きさ */
+  width: 32px;
+  height: auto;
+
+  /* ピンの先端を指定した場所に合わせる */
+  transform: translate(-50%, -100%);
+
+  /* 地図より手前に表示 */
+  z-index: 20;
+
+  /* ドット絵をくっきり表示 */
+  image-rendering: pixelated;
+
+  /* ピンがマウス操作の邪魔をしない */
+  pointer-events: none;
+}
   </style>
 </head>
 
@@ -1153,6 +1176,8 @@ function createPixelMap() {
       pixelMap.appendChild(cell);
     }
   }
+  // テスト用の目的地ピン
+addMapPin(30, 41);
 }
 
 
@@ -3982,6 +4007,31 @@ async function showSelectedArea() {
   }
 }
 
+// ========================================
+// 指定したマスに目的地ピンを置く
+// ========================================
+function addMapPin(x, y) {
+
+  // 指定されたマスを探す
+  const cell = document.querySelector(
+    `.map-cell[data-x="${x}"][data-y="${y}"]`
+  );
+
+  // マスが見つからなかったら終了
+  if (!cell) {
+    console.log("ピンを置くマスが見つかりません:", x, y);
+    return;
+  }
+
+  // ピン画像を作る
+  const pin = document.createElement("img");
+
+  pin.src = "images/pin.png";
+  pin.classList.add("map-pin");
+
+  // 指定したマスの中にピンを入れる
+  cell.appendChild(pin);
+}
 </script>
 
 </body>
