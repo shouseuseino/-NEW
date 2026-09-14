@@ -946,39 +946,32 @@ function getMarineWorld() {
 
   marineWorldArea.forEach(([x, y]) => {
 
-    const cell =
-      document.querySelector(
-        `.map-cell[data-x="${x}"][data-y="${y}"]`
-      );
+    const cell = document.querySelector(
+      `.map-cell[data-x="${x}"][data-y="${y}"]`
+    );
 
     if (cell && cell.classList.contains("land")) {
-
-      // 手動選択時の赤色を消す
       cell.style.backgroundColor = "";
-
-      // 緑色にする
       cell.classList.add("active");
     }
   });
 
-
-  // スポット表示
-  document.getElementById("spot1-name").textContent =
+  // 10番目のスポットを公開
+  document.getElementById("spot10-name").textContent =
     "マリンワールド海の中道";
 
-  document.getElementById("spot1-status").textContent =
+  document.getElementById("spot10-status").textContent =
     "● GET!";
 
-
-  // 達成度
+  // 11スポット中1個取得
   document.querySelector(".percent").textContent =
-    "25%";
+    "9%";
 
   document.querySelector(".progress-fill").style.width =
-    "25%";
+    "9%";
 
   document.querySelector(".spot-count").textContent =
-    "1 / 4 スポット";
+    "1 / 11 スポット";
 }
 
 
