@@ -576,204 +576,20 @@
 
 <script>
 
-/* =================================
-   ドット地図の設定
-================================= */
+// ========================================
+// ドット地図の基本設定
+// ========================================
 
-/*
-  横に何マス並べるか。
-
-  数字を大きくすると
-  マスが細かくなる。
-
-  まずは80くらいがおすすめ。
-*/
 const columns = 80;
-
-
-/*
-  白と判定する明るさ。
-
-  0   = 真っ黒
-  255 = 真っ白
-
-  白地図なので、
-  220以上なら「福岡県の中」と判定。
-*/
 const whiteThreshold = 220;
 
-
-/* =================================
-   必要なHTMLを取得
-================================= */
-
-const mapImage =
-  document.getElementById("map-source");
-
-const pixelMap =
-  document.getElementById("pixel-map");
+const mapImage = document.getElementById("map-source");
+const pixelMap = document.getElementById("pixel-map");
 
 
-/* =================================
-   画像が読み込まれたら
-   ドット地図を作る
-================================= */
-
-mapImage.onload = function () {
-
-  createPixelMap();
-
-};
-
-
-/* =================================
-   ドット地図を作る関数
-================================= */
-
-function createPixelMap() {
-
-  /* 元画像の縦横比 */
-  const ratio =
-    mapImage.naturalHeight /
-    mapImage.naturalWidth;
-
-
-  /*
-    横80マスに対して
-    縦が何マス必要か計算
-  */
-  const rows =
-    Math.round(columns * ratio);
-
-
-  /* グリッドの列と行を設定 */
-  pixelMap.style.gridTemplateColumns =
-    `repeat(${columns}, 1fr)`;
-
-  pixelMap.style.gridTemplateRows =
-    `repeat(${rows}, 1fr)`;
-
-
-  /* =================================
-     画像を一時的にCanvasへ描く
-  ================================= */
-
-  const canvas =
-    document.createElement("canvas");
-
-  canvas.width = columns;
-  canvas.height = rows;
-
-  const ctx =
-    canvas.getContext("2d");
-
-
-  /*
-    白地図画像を
-    小さいサイズに縮小して描く。
-
-    これによって
-    1ピクセル = 1マス
-    として判定できる。
-  */
-  ctx.drawImage(
-    mapImage,
-    0,
-    0,
-    columns,
-    rows
-  );
-
-
-  /*
-    画像の色データを取得
-  */
-  const imageData =
-    ctx.getImageData(
-      0,
-      0,
-      columns,
-      rows
-    );
-
-
-  const pixels =
-    imageData.data;
-
-
-  /* =================================
-     マスを1個ずつ作る
-  ================================= */
-
-  for (let y = 0; y < rows; y++) {
-
-    for (let x = 0; x < columns; x++) {
-
-      /*
-        RGBデータの位置を計算
-      */
-      const index =
-        (y * columns + x) * 4;
-
-
-      const red =
-        pixels[index];
-
-      const green =
-        pixels[index + 1];
-
-      const blue =
-        pixels[index + 2];
-
-      const alpha =
-        pixels[index + 3];
-
-
-      /* 新しいマスを作る */
-      const cell =
-        document.createElement("div");
-
-      cell.classList.add("map-cell");
-
-
-      /*
-        あとでスポット取得時に
-        位置を使えるように保存
-      */
-      cell.dataset.x = x;
-      cell.dataset.y = y;
-
-
-      /* =================================
-         福岡県の中か判定
-      ================================= */
-
-      const isWhite =
-        red > whiteThreshold &&
-        green > whiteThreshold &&
-        blue > whiteThreshold &&
-        alpha > 50;
-
-
-      if (isWhite) {
-
-        /*
-          白い場所だけ
-          福岡県の陸地にする
-        */
-        cell.classList.add("land");
-
-      }
-
-
-      pixelMap.appendChild(cell);
-
-    }
-
-  }
-
-}
-
+// ========================================
+// マリンワールドで緑にする範囲
+// ========================================
 
 const marineWorldArea = [
   [19, 28],
@@ -953,145 +769,274 @@ const marineWorldArea = [
   [28, 37],
   [22, 37],
 ];
-// ========================================
-// マリンワールド海の中道を取得
-// ========================================
-function getMarineWorld() {
 
-  // 指定した座標を順番に緑にする
-  marineWorldArea.forEach(([x, y]) => {
-
-    const cell = document.querySelector(
-      `.map-cell[data-x="${x}"][data-y="${y}"]`
-    );
-
-    if (cell) {
-      cell.classList.add("active");
-
-      // 範囲設定で付けた赤色を消す
-      cell.style.backgroundColor = "";
-    }
-  });
-
-
-  // スポット名を表示
-  document.getElementById("spot1-name").textContent =
-    "マリンワールド海の中道";
-
-  // GET表示
-  document.getElementById("spot1-status").textContent =
-    "● GET!";
-
-  // 達成度
-  document.querySelector(".percent").textContent =
-    "25%";
-
-  // 達成度バー
-  document.querySelector(".progress-fill").style.width =
-    "25%";
-
-  // 取得スポット数
-  document.querySelector(".spot-count").textContent =
-    "1 / 4 スポット";
-}
-// ========================================
-// 地図をクリックした場所の座標を調べる
-// ========================================
-document.getElementById("pixel-map").addEventListener("click", function(event) {
-
-  // クリックしたマスを取得
-  const cell = event.target;
-
-  // 地図のマス以外をクリックした場合は何もしない
-  if (!cell.classList.contains("map-cell")) {
-    return;
-  }
-
-  // マスに保存されているX・Y座標を取得
-  const x = cell.dataset.x;
-  const y = cell.dataset.y;
-
-  // クリックした場所を赤くする
-  cell.style.backgroundColor = "red";
-
-  // 座標を画面に表示
-  alert("この場所の座標\nX = " + x + "\nY = " + y);
-});
 
 // ========================================
-// なぞって範囲選択する機能
+// 選択したマスを保存
 // ========================================
 
 let selectedArea = [];
 let isDrawing = false;
 
 
-// マウスを押した
-pixelMap.addEventListener("mousedown", function(event) {
-  isDrawing = true;
-  paintCell(event.target);
-});
+// ========================================
+// 白地図画像が読み込まれたら
+// ドット地図を作成
+// ========================================
 
-// マウスを動かした
-pixelMap.addEventListener("mousemove", function(event) {
-  if (!isDrawing) return;
+mapImage.onload = function () {
+  createPixelMap();
+};
 
-  paintCell(event.target);
-});
 
-// マウスを離した
-document.addEventListener("mouseup", function() {
-  isDrawing = false;
-});
+// 画像がすでに読み込み済みだった場合にも対応
+if (mapImage.complete) {
+  createPixelMap();
+}
 
 
 // ========================================
-// マスを塗る
+// ドット地図を作る
 // ========================================
+
+function createPixelMap() {
+
+  // 二重作成を防ぐ
+  pixelMap.innerHTML = "";
+
+  const ratio =
+    mapImage.naturalHeight / mapImage.naturalWidth;
+
+  const rows =
+    Math.round(columns * ratio);
+
+  pixelMap.style.gridTemplateColumns =
+    `repeat(${columns}, 1fr)`;
+
+  pixelMap.style.gridTemplateRows =
+    `repeat(${rows}, 1fr)`;
+
+
+  // 白地図画像を一時的なCanvasへ描画
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width = columns;
+  canvas.height = rows;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.drawImage(
+    mapImage,
+    0,
+    0,
+    columns,
+    rows
+  );
+
+  const imageData =
+    ctx.getImageData(
+      0,
+      0,
+      columns,
+      rows
+    );
+
+  const pixels =
+    imageData.data;
+
+
+  // マスを作成
+  for (let y = 0; y < rows; y++) {
+
+    for (let x = 0; x < columns; x++) {
+
+      const index =
+        (y * columns + x) * 4;
+
+      const red = pixels[index];
+      const green = pixels[index + 1];
+      const blue = pixels[index + 2];
+      const alpha = pixels[index + 3];
+
+      const cell =
+        document.createElement("div");
+
+      cell.classList.add("map-cell");
+
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+
+
+      // 福岡県内かどうか判定
+      const isWhite =
+        red > whiteThreshold &&
+        green > whiteThreshold &&
+        blue > whiteThreshold &&
+        alpha > 50;
+
+      if (isWhite) {
+        cell.classList.add("land");
+      }
+
+      pixelMap.appendChild(cell);
+    }
+  }
+}
+
+
+// ========================================
+// マリンワールド取得
+// ========================================
+
+function getMarineWorld() {
+
+  marineWorldArea.forEach(([x, y]) => {
+
+    const cell =
+      document.querySelector(
+        `.map-cell[data-x="${x}"][data-y="${y}"]`
+      );
+
+    if (cell && cell.classList.contains("land")) {
+
+      // 手動選択時の赤色を消す
+      cell.style.backgroundColor = "";
+
+      // 緑色にする
+      cell.classList.add("active");
+    }
+  });
+
+
+  // スポット表示
+  document.getElementById("spot1-name").textContent =
+    "マリンワールド海の中道";
+
+  document.getElementById("spot1-status").textContent =
+    "● GET!";
+
+
+  // 達成度
+  document.querySelector(".percent").textContent =
+    "25%";
+
+  document.querySelector(".progress-fill").style.width =
+    "25%";
+
+  document.querySelector(".spot-count").textContent =
+    "1 / 4 スポット";
+}
+
+
+// ========================================
+// マウスで範囲選択
+// ========================================
+
+pixelMap.addEventListener(
+  "mousedown",
+  function (event) {
+
+    isDrawing = true;
+
+    paintCell(event.target);
+  }
+);
+
+
+pixelMap.addEventListener(
+  "mousemove",
+  function (event) {
+
+    if (!isDrawing) {
+      return;
+    }
+
+    paintCell(event.target);
+  }
+);
+
+
+document.addEventListener(
+  "mouseup",
+  function () {
+
+    isDrawing = false;
+  }
+);
+
+
+// ========================================
+// 選択したマスを赤くする
+// ========================================
+
 function paintCell(cell) {
 
-  // マップのマスじゃなければ無視
   if (!cell.classList.contains("map-cell")) {
     return;
   }
 
-  // 陸地じゃなければ無視
   if (!cell.classList.contains("land")) {
     return;
   }
 
-  const x = Number(cell.dataset.x);
-  const y = Number(cell.dataset.y);
+  const x =
+    Number(cell.dataset.x);
 
-  // すでに選択済みなら何もしない
-  const exists = selectedArea.some(
-    ([px, py]) => px === x && py === y
-  );
+  const y =
+    Number(cell.dataset.y);
+
+
+  // 同じ座標を2回保存しない
+  const exists =
+    selectedArea.some(
+      ([px, py]) =>
+        px === x && py === y
+    );
 
   if (exists) {
     return;
   }
 
-  // 座標を保存
+
   selectedArea.push([x, y]);
 
-  // 選択中は赤色
+  // 選択中は赤
   cell.style.backgroundColor = "red";
 }
+
+
 // ========================================
-// 選んだ範囲の座標をコピー
+// 選択した範囲をコピー
 // ========================================
+
 async function showSelectedArea() {
 
-  let result = "const marineWorldArea = [\n";
+  if (selectedArea.length === 0) {
+
+    alert(
+      "まだ範囲が選択されていません。地図を赤く塗ってから押してください。"
+    );
+
+    return;
+  }
+
+
+  let result =
+    "const marineWorldArea = [\n";
 
   selectedArea.forEach(([x, y]) => {
-    result += `  [${x}, ${y}],\n`;
+
+    result +=
+      `  [${x}, ${y}],\n`;
   });
 
   result += "];";
 
+
   try {
+
     await navigator.clipboard.writeText(result);
 
     alert(
@@ -1101,9 +1046,9 @@ async function showSelectedArea() {
 
   } catch (error) {
 
-    // コピーできなかった場合は画面に座標を表示
+    // Safariなどでコピーできない場合
     prompt(
-      "この座標を ⌘C でコピーしてください",
+      "⌘Cでコピーしてください",
       result
     );
   }
