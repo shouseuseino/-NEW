@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>福岡コレクション - ステージ1</title>
+
+  <style>
+    /* ================================
+       全体
+    ================================= */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #7ccf63;
+      color: #0d2b26;
+    }
+
+
+    /* ================================
+       画面全体の箱
+    ================================= */
+    .game-screen {
+      width: 100%;
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+/* ================================
+   上のヘッダー
+================================= */
+.header {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+
+/* ================================
+   福岡コレクションロゴ
+================================= */
+.logo-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-image {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  display: block;
+}
+
+
+/* ================================
+   ステージ1画像
+================================= */
+.stage-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stage-image {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+}
+
+
+/* ================================
+   右上ボタン
+================================= */
+.header-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.header-button {
+  display: inline-block;
+
+  text-decoration: none;
+  text-align: center;
+
+  background: #fff5cf;
+  color: #0d2b26;
+
+  border: 5px solid #123c34;
+
+  padding: 14px 18px;
+
+  font-size: 17px;
+  font-weight: bold;
+
+  box-shadow: 0 5px 0 #123c34;
+
+  transition: 0.1s;
+}
+
+
+/* 押した時の動き */
+.header-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #123c34;
+}
+   
+
+    /* ================================
+       メイン部分
+       左：地図
+       右：達成度＋スポット一覧
+    ================================= */
+    .main-area {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 18px;
+    }
+
+
+    /* ================================
+       左側：白地図を入れる欄
+    ================================= */
+    .map-panel {
+      min-height: 650px;
+      background: #0e4b3e;
+      border: 6px solid #123c34;
+      padding: 16px;
+      position: relative;
+    }
+
+
+    /* あとで白地図を入れる場所 */
+    .map-placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 610px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+
+    /* ================================
+       右側
+    ================================= */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    
+
+    /* ================================
+       達成度
+    ================================= */
+    .progress-panel {
+      background: #fff8df;
+      border: 6px solid #123c34;
+      padding: 22px;
+    }
+
+    .progress-panel h2 {
+      margin-top: 0;
+      font-size: 26px;
+    }
+
+    .percent {
+      font-size: 64px;
+      font-weight: bold;
+      text-align: right;
+      margin: 10px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 30px;
+      border: 5px solid #123c34;
+      background: #c8d1cf;
+      overflow: hidden;
+    }
+
+    /* 今は0%なので幅0 */
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #55c85d;
+    }
+
+    .spot-count {
+      text-align: right;
+      margin-top: 12px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+
+    /* ================================
+       スポット一覧
+    ================================= */
+    .spot-panel {
+      background: #8ddd72;
+      border: 6px solid #123c34;
+      padding: 18px;
+      flex: 1;
+    }
+
+    .spot-panel h2 {
+      margin-top: 0;
+      font-size: 26px;
+    }
+
+    .spot-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .spot-item {
+      background: #fff8df;
+      border: 3px solid #d9c88f;
+      padding: 16px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .spot-status {
+      color: #777;
+      font-size: 16px;
+    }
+
+    /* ================================
+       スマホ対応
+    ================================= */
+    @media (max-width: 850px) {
+
+      .header {
+        grid-template-columns: 1fr;
+      }
+
+      .main-area {
+        grid-template-columns: 1fr;
+      }
+
+      .map-panel {
+        min-height: 450px;
+      }
+
+      .map-placeholder {
+        min-height: 410px;
+      }
+
+      .percent {
+        text-align: center;
+      }
+    }
+    /* ================================
+   地図を置く場所
+================================= */
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 610px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+
+/* ================================
+   福岡県の白地図
+================================= */
+.fukuoka-map {
+  width: 95%;
+  height: 95%;
+
+  object-fit: contain;
+
+  display: block;
+
+  /* 緑マスより下に置く */
+  position: relative;
+  z-index: 1;
+}
+/* ================================
+   地図全体を置く場所
+================================= */
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 610px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+
+/* ================================
+   元の白地図画像
+
+   福岡県の形を判定するためだけに使う
+================================= */
+#map-source {
+  position: absolute;
+
+  width: 90%;
+  height: 90%;
+
+  object-fit: contain;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+
+/* ================================
+   ドット地図を表示する場所
+================================= */
+#pixel-map {
+  width: 90%;
+  height: 90%;
+
+  display: grid;
+
+  /* JavaScriptから列数を決める */
+  position: relative;
+}
+
+
+/* ================================
+   1個のドット
+================================= */
+.map-cell {
+  width: 100%;
+  height: 100%;
+
+  background: transparent;
+
+  border: 0.5px solid rgba(90, 170, 190, 0.22);
+}
+
+
+/* 福岡県の中にある白マス */
+.map-cell.land {
+  background: #f5f5ed;
+
+  border: 0.5px solid rgba(190, 190, 180, 0.55);
+}
+
+
+/* 取得済みの場所 */
+.map-cell.active {
+  background: #63c856;
+
+  border: 0.5px solid #43943c;
+}
+
+
+/* 緑にする時に追加するクラス */
+.map-pixel.active {
+  opacity: 1;
+}
+/* ================================
+   テストボタン
+================================= */
+.test-button {
+  width: 100%;
+  margin-top: 18px;
+
+  padding: 14px;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  background: #fff5cf;
+  color: #123c34;
+
+  border: 4px solid #123c34;
+
+  cursor: pointer;
+}
+  </style>
+</head>
+
+
+<body>
+
+  <div class="game-screen">
+
+
+   <!-- ================================
+     上のヘッダー
+================================= -->
+<header class="header">
+
+  <!-- 福岡コレクションのロゴ画像 -->
+  <div class="logo-box">
+    <img src="images/logonew.png" alt="福岡コレクション" class="logo-image">
+  </div>
+
+
+  <!-- ステージ1の画像 -->
+  <div class="stage-title">
+    <img src="images/stage1-button.png" alt="ステージ1 福岡エリア" class="stage-image">
+  </div>
+
+
+  <!-- 右上の戻るボタン -->
+  <div class="header-buttons">
+
+    <!-- ステージ選択画面へ戻る -->
+    <a href="stage-select.html" class="header-button">
+      ← ステージ選択に戻る
+    </a>
+
+    <!-- ホーム画面へ戻る -->
+    <a href="index.html" class="header-button">
+      🏠 ホームに戻る
+    </a>
+
+  </div>
+
+</header>
+
+
+
+    <!-- ================================
+         メイン画面
+    ================================= -->
+    <main class="main-area">
+
+
+      <!-- ================================
+           左：白地図を入れる場所
+      ================================= -->
+      <section class="map-panel">
+
+   <div class="map-placeholder">
+
+  <!--
+    元の白地図画像
+    画面にはほぼ見せず、
+    福岡県の形を判定するために使う
+  -->
+  <img
+    id="map-source"
+    src="images/fukuoka-map.png"
+    alt="福岡県地図"
+  >
+
+  <!--
+    ここに白いドット地図を自動生成する
+  -->
+  <div id="pixel-map"></div>
+
+</div>
+
+      </section>
+
+
+
+      <!-- ================================
+           右側
+      ================================= -->
+      <aside class="right-panel">
+
+
+        <!-- 達成度 -->
+        <section class="progress-panel">
+
+          <h2>🚩 達成度</h2>
+
+          <div class="percent">
+            0%
+          </div>
+
+
+          <!-- 達成度ゲージ -->
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+
+
+          <div class="spot-count">
+            0 / 4 スポット
+          </div>
+
+        </section>
+
+
+
+        <!-- スポット一覧 -->
+        <section class="spot-panel">
+
+          <h2>📍 スポット一覧</h2>
+
+          <div class="spot-list">
+
+            <div class="spot-item">
+              <span id="spot1-name">？？？？？</span>
+              <span id="spot1-status"class="spot-status">● 未取得</span>
+            </div>
+
+            <div class="spot-item">
+              <span>？？？？？</span>
+              <span class="spot-status">● 未取得</span>
+            </div>
+
+            <div class="spot-item">
+              <span>？？？？？</span>
+              <span class="spot-status">● 未取得</span>
+            </div>
+
+            <div class="spot-item">
+              <span>？？？？？</span>
+              <span class="spot-status">● 未取得</span>
+            </div>
+
+          </div>
+         <button onclick="getMarineWorld()" class="test-button">
+           テスト：マリンワールド海の中道を取得
+         </button>
+     
+          
+
+        </section>
+
+      </aside>
+
+    </main>
+
+
+
+  </div>
+
+
+<script>
+
+/* =================================
+   ドット地図の設定
+================================= */
+
+/*
+  横に何マス並べるか。
+
+  数字を大きくすると
+  マスが細かくなる。
+
+  まずは80くらいがおすすめ。
+*/
+const columns = 80;
+
+
+/*
+  白と判定する明るさ。
+
+  0   = 真っ黒
+  255 = 真っ白
+
+  白地図なので、
+  220以上なら「福岡県の中」と判定。
+*/
+const whiteThreshold = 220;
+
+
+/* =================================
+   必要なHTMLを取得
+================================= */
+
+const mapImage =
+  document.getElementById("map-source");
+
+const pixelMap =
+  document.getElementById("pixel-map");
+
+
+/* =================================
+   画像が読み込まれたら
+   ドット地図を作る
+================================= */
+
+mapImage.onload = function () {
+
+  createPixelMap();
+
+};
+
+
+/* =================================
+   ドット地図を作る関数
+================================= */
+
+function createPixelMap() {
+
+  /* 元画像の縦横比 */
+  const ratio =
+    mapImage.naturalHeight /
+    mapImage.naturalWidth;
+
+
+  /*
+    横80マスに対して
+    縦が何マス必要か計算
+  */
+  const rows =
+    Math.round(columns * ratio);
+
+
+  /* グリッドの列と行を設定 */
+  pixelMap.style.gridTemplateColumns =
+    `repeat(${columns}, 1fr)`;
+
+  pixelMap.style.gridTemplateRows =
+    `repeat(${rows}, 1fr)`;
+
+
+  /* =================================
+     画像を一時的にCanvasへ描く
+  ================================= */
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width = columns;
+  canvas.height = rows;
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+  /*
+    白地図画像を
+    小さいサイズに縮小して描く。
+
+    これによって
+    1ピクセル = 1マス
+    として判定できる。
+  */
+  ctx.drawImage(
+    mapImage,
+    0,
+    0,
+    columns,
+    rows
+  );
+
+
+  /*
+    画像の色データを取得
+  */
+  const imageData =
+    ctx.getImageData(
+      0,
+      0,
+      columns,
+      rows
+    );
+
+
+  const pixels =
+    imageData.data;
+
+
+  /* =================================
+     マスを1個ずつ作る
+  ================================= */
+
+  for (let y = 0; y < rows; y++) {
+
+    for (let x = 0; x < columns; x++) {
+
+      /*
+        RGBデータの位置を計算
+      */
+      const index =
+        (y * columns + x) * 4;
+
+
+      const red =
+        pixels[index];
+
+      const green =
+        pixels[index + 1];
+
+      const blue =
+        pixels[index + 2];
+
+      const alpha =
+        pixels[index + 3];
+
+
+      /* 新しいマスを作る */
+      const cell =
+        document.createElement("div");
+
+      cell.classList.add("map-cell");
+
+
+      /*
+        あとでスポット取得時に
+        位置を使えるように保存
+      */
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+
+
+      /* =================================
+         福岡県の中か判定
+      ================================= */
+
+      const isWhite =
+        red > whiteThreshold &&
+        green > whiteThreshold &&
+        blue > whiteThreshold &&
+        alpha > 50;
+
+
+      if (isWhite) {
+
+        /*
+          白い場所だけ
+          福岡県の陸地にする
+        */
+        cell.classList.add("land");
+
+      }
+
+
+      pixelMap.appendChild(cell);
+
+    }
+
+  }
+
+}
+
+/* =================================
+   マリンワールドを取得する
+================================= */
+function getMarineWorld() {
+
+  /* 地図上のすべてのマスを取得 */
+  const cells = document.querySelectorAll(".map-cell.land");
+
+
+  cells.forEach(cell => {
+
+    /* マスの位置 */
+    const x = Number(cell.dataset.x);
+    const y = Number(cell.dataset.y);
+
+
+    /* =================================
+       マリンワールド周辺の位置
+
+       まずは仮位置。
+       あとで実際の場所に合わせて調整する。
+    ================================= */
+    const centerX = 55;
+    const centerY = 20;
+
+    /* 色が広がる大きさ */
+    const radius = 8;
+
+
+    /* 中心からの距離 */
+    const distance = Math.sqrt(
+      Math.pow(x - centerX, 2) +
+      Math.pow(y - centerY, 2)
+    );
+
+
+    /*
+      半径内のマスを緑にする。
+
+      少しランダムにして
+      完全な円にならないようにする。
+    */
+    if (distance < radius - Math.random() * 2) {
+
+      cell.classList.add("active");
+
+    }
+
+  });
+
+
+  /* =================================
+     スポット一覧を変更
+  ================================= */
+
+  document.getElementById("spot1-name").textContent =
+    "マリンワールド海の中道";
+
+  document.getElementById("spot1-status").textContent =
+    "● GET!";
+
+
+  /* =================================
+     達成度を25%に変更
+  ================================= */
+
+  document.querySelector(".percent").textContent =
+    "25%";
+
+  document.querySelector(".progress-fill").style.width =
+    "25%";
+
+  document.querySelector(".spot-count").textContent =
+    "1 / 4 スポット";
+
+}
+
+</script>
+
+</body>
+</html>
