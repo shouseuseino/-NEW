@@ -774,58 +774,7 @@ function createPixelMap() {
 
 }
 
-/* =================================
-   マリンワールドを取得する
-================================= */
 
-
-
-    /* 中心からの距離 */
-    const distance = Math.sqrt(
-      Math.pow(x - centerX, 2) +
-      Math.pow(y - centerY, 2)
-    );
-
-
-    /*
-      半径内のマスを緑にする。
-
-      少しランダムにして
-      完全な円にならないようにする。
-    */
-    if (distance < radius - Math.random() * 2) {
-
-      cell.classList.add("active");
-
-    }
-
-  
-
-
-  /* =================================
-     スポット一覧を変更
-  ================================= */
-
-  document.getElementById("spot1-name").textContent =
-    "マリンワールド海の中道";
-
-  document.getElementById("spot1-status").textContent =
-    "● GET!";
-
-    
-
-  /* =================================
-     達成度を25%に変更
-  ================================= */
-
-  document.querySelector(".percent").textContent =
-    "25%";
-
-  document.querySelector(".progress-fill").style.width =
-    "25%";
-
-  document.querySelector(".spot-count").textContent =
-    "1 / 4 スポット";
 const marineWorldArea = [
   [19, 28],
   [19, 29],
