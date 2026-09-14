@@ -556,28 +556,7 @@
          <button onclick="getMarineWorld()" class="test-button">
            テスト：マリンワールド海の中道を取得
          </button>
-     // ========================================
-// 選んだ範囲の座標をコピーする
-// ========================================
-function showSelectedArea() {
-
-  let result = "const marineWorldArea = [\n";
-
-  selectedArea.forEach(([x, y]) => {
-    result += `  [${x}, ${y}],\n`;
-  });
-
-  result += "];";
-
-  // 座標をコピー
-  navigator.clipboard.writeText(result);
-
-  alert(
-    "選んだ " +
-    selectedArea.length +
-    " マスの座標をコピーしました！"
-  );
-}
+      
   選んだ範囲の座標を見る
 </button>
           
@@ -952,6 +931,36 @@ function paintCell(cell) {
 
   // 選択中は赤色
   cell.style.backgroundColor = "red";
+}
+// ========================================
+// 選んだ範囲の座標をコピー
+// ========================================
+async function showSelectedArea() {
+
+  let result = "const marineWorldArea = [\n";
+
+  selectedArea.forEach(([x, y]) => {
+    result += `  [${x}, ${y}],\n`;
+  });
+
+  result += "];";
+
+  try {
+    await navigator.clipboard.writeText(result);
+
+    alert(
+      selectedArea.length +
+      "マスの座標をコピーしました！"
+    );
+
+  } catch (error) {
+
+    // コピーできなかった場合は画面に座標を表示
+    prompt(
+      "この座標を ⌘C でコピーしてください",
+      result
+    );
+  }
 }
 </script>
 
