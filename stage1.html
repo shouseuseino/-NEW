@@ -838,6 +838,41 @@ const marineWorldArea = [
 let selectedArea = [];
 let isDrawing = false;
 
+// ========================================
+// 取得したスポットを記録
+// ========================================
+
+// 全スポット数
+const totalSpots = 11;
+
+// 取得済みスポットを保存する場所
+const acquiredSpots = new Set();
+
+// ========================================
+// 達成度を自動更新する関数
+// ========================================
+function updateProgress() {
+
+  // 今までに取得したスポット数
+  const count = acquiredSpots.size;
+
+  // パーセントを計算
+  const percent = Math.round(
+    (count / totalSpots) * 100
+  );
+
+  // 「9%」などの表示を変更
+  document.querySelector(".percent").textContent =
+    `${percent}%`;
+
+  // 緑色のゲージを変更
+  document.querySelector(".progress-fill").style.width =
+    `${percent}%`;
+
+  // 「1 / 11 スポット」などの表示を変更
+  document.querySelector(".spot-count").textContent =
+    `${count} / ${totalSpots} スポット`;
+}
 
 // ========================================
 // 白地図画像が読み込まれたら
@@ -1200,15 +1235,11 @@ function getShiraito() {
   document.getElementById("spot1-status").textContent =
     "● GET!";
 
-  // とりあえずテスト用
-  document.querySelector(".percent").textContent =
-    "9%";
+ // スポット1を取得済みにする
+acquiredSpots.add(1);
 
-  document.querySelector(".progress-fill").style.width =
-    "9%";
-
-  document.querySelector(".spot-count").textContent =
-    "1 / 11 スポット";
+// 達成度を自動更新
+updateProgress();
 }
 
 //いのたび博物館 //
@@ -1491,12 +1522,18 @@ function getInochinotabi() {
     }
   });
 
+  
   // スポット2を公開
   document.getElementById("spot2-name").textContent =
     "いのちのたび博物館";
 
   document.getElementById("spot2-status").textContent =
     "● GET!";
+    // スポット2を取得済みにする
+acquiredSpots.add(2);
+
+// 達成度を更新
+updateProgress();
 }
 // ========================================
 // マウスで範囲選択
