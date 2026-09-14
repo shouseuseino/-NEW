@@ -917,28 +917,6 @@ document.getElementById("pixel-map").addEventListener("click", function(event) {
   // コンソールに現在の座標を表示
   console.log(selectedArea);
 });
-// ========================================
-// 選択した範囲の座標を表示
-// ========================================
-function showSelectedArea() {
-
-  let result = "const marineWorldArea = [\n";
-
-  selectedArea.forEach(([x, y]) => {
-    result += `  [${x}, ${y}],\n`;
-  });
-
-  result += "];";
-
-  console.log(result);
-
-  alert(
-    "選択したマス：" +
-    selectedArea.length +
-    "個\n\n" +
-    "座標はコンソールに表示しました"
-  );
-}
 </script>
 
 </body>
