@@ -410,6 +410,13 @@
 
   cursor: pointer;
 }
+#pixel-map {
+  user-select: none;
+}
+
+.map-cell {
+  user-select: none;
+}
   </style>
 </head>
 
@@ -866,34 +873,25 @@ document.getElementById("pixel-map").addEventListener("click", function(event) {
 });
 
 // ========================================
-// 範囲設定モード
-// マウスでなぞったマスを選択する
+// なぞって範囲選択する機能
 // ========================================
 
-// 選択したマスを保存
 let selectedArea = [];
-
-// マウスを押しているか
 let isDrawing = false;
 
 
 // マウスを押した
-document.getElementById("pixel-map").addEventListener("mousedown", function(event) {
+pixelMap.addEventListener("mousedown", function(event) {
   isDrawing = true;
-
-  selectCell(event.target);
+  paintCell(event.target);
 });
-
 
 // マウスを動かした
-document.getElementById("pixel-map").addEventListener("mouseover", function(event) {
+pixelMap.addEventListener("mousemove", function(event) {
+  if (!isDrawing) return;
 
-  if (isDrawing) {
-    selectCell(event.target);
-  }
-
+  paintCell(event.target);
 });
-
 
 // マウスを離した
 document.addEventListener("mouseup", function() {
@@ -902,16 +900,16 @@ document.addEventListener("mouseup", function() {
 
 
 // ========================================
-// マスを選択する処理
+// マスを塗る
 // ========================================
-function selectCell(cell) {
+function paintCell(cell) {
 
-  // マスじゃなければ何もしない
+  // マップのマスじゃなければ無視
   if (!cell.classList.contains("map-cell")) {
     return;
   }
 
-  // 陸地じゃなければ何もしない
+  // 陸地じゃなければ無視
   if (!cell.classList.contains("land")) {
     return;
   }
@@ -919,41 +917,20 @@ function selectCell(cell) {
   const x = Number(cell.dataset.x);
   const y = Number(cell.dataset.y);
 
-  // 同じマスを重複して追加しない
-  const alreadySelected = selectedArea.some(
-    point => point[0] === x && point[1] === y
+  // すでに選択済みなら何もしない
+  const exists = selectedArea.some(
+    ([px, py]) => px === x && py === y
   );
 
-  if (!alreadySelected) {
-
-    selectedArea.push([x, y]);
-
-    // 選択中は赤色
-    cell.style.backgroundColor = "red";
+  if (exists) {
+    return;
   }
-}
 
+  // 座標を保存
+  selectedArea.push([x, y]);
 
-// ========================================
-// 選んだ範囲をコンソールに表示
-// ========================================
-function showSelectedArea() {
-
-  let result = "const marineWorldArea = [\n";
-
-  selectedArea.forEach(([x, y]) => {
-    result += `  [${x}, ${y}],\n`;
-  });
-
-  result += "];";
-
-  console.log(result);
-
-  alert(
-    "選択したマス：" +
-    selectedArea.length +
-    "個\n\n座標をコンソールに表示しました"
-  );
+  // 選択中は赤色
+  cell.style.backgroundColor = "red";
 }
 </script>
 
