@@ -225,11 +225,17 @@
       font-size: 26px;
     }
 
-    .spot-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+   .spot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  /* 一覧だけスクロールできる */
+  max-height: 430px;
+  overflow-y: auto;
+
+  padding-right: 6px;
+}
 
     .spot-item {
       background: #fff8df;
@@ -518,7 +524,7 @@
 
 
           <div class="spot-count">
-            0 / 4 スポット
+            0 / 11 スポット
           </div>
 
         </section>
@@ -532,27 +538,73 @@
 
           <div class="spot-list">
 
-            <div class="spot-item">
-              <span id="spot1-name">？？？？？</span>
-              <span id="spot1-status"class="spot-status">● 未取得</span>
-            </div>
+  <!-- スポット1 -->
+  <div class="spot-item">
+    <span id="spot1-name">？？？？？</span>
+    <span id="spot1-status" class="spot-status">● 未取得</span>
+  </div>
 
-            <div class="spot-item">
-              <span>？？？？？</span>
-              <span class="spot-status">● 未取得</span>
-            </div>
+  <!-- スポット2 -->
+  <div class="spot-item">
+    <span id="spot2-name">？？？？？</span>
+    <span id="spot2-status" class="spot-status">● 未取得</span>
+  </div>
 
-            <div class="spot-item">
-              <span>？？？？？</span>
-              <span class="spot-status">● 未取得</span>
-            </div>
+  <!-- スポット3 -->
+  <div class="spot-item">
+    <span id="spot3-name">？？？？？</span>
+    <span id="spot3-status" class="spot-status">● 未取得</span>
+  </div>
 
-            <div class="spot-item">
-              <span>？？？？？</span>
-              <span class="spot-status">● 未取得</span>
-            </div>
+  <!-- スポット4 -->
+  <div class="spot-item">
+    <span id="spot4-name">？？？？？</span>
+    <span id="spot4-status" class="spot-status">● 未取得</span>
+  </div>
 
-          </div>
+  <!-- スポット5 -->
+  <div class="spot-item">
+    <span id="spot5-name">？？？？？</span>
+    <span id="spot5-status" class="spot-status">● 未取得</span>
+  </div>
+
+  <!-- スポット6 -->
+  <div class="spot-item">
+    <span id="spot6-name">？？？？？</span>
+    <span id="spot6-status" class="spot-status">● 未取得</span>
+  </div>
+
+  <!-- スポット7 -->
+  <div class="spot-item">
+    <span id="spot7-name">？？？？？</span>
+    <span id="spot7-status" class="spot-status">● 未取得</span>
+  </div>
+
+  <!-- スポット8 -->
+  <div class="spot-item">
+    <span id="spot8-name">？？？？？</span>
+    <span id="spot8-status" class="spot-status">● 未取得</span>
+  </div>
+
+  <!-- スポット9 -->
+  <div class="spot-item">
+    <span id="spot9-name">？？？？？</span>
+    <span id="spot9-status" class="spot-status">● 未取得</span>
+  </div>
+
+  <!-- スポット10：マリンワールド -->
+  <div class="spot-item">
+    <span id="spot10-name">？？？？？</span>
+    <span id="spot10-status" class="spot-status">● 未取得</span>
+  </div>
+
+  <!-- スポット11 -->
+  <div class="spot-item">
+    <span id="spot11-name">？？？？？</span>
+    <span id="spot11-status" class="spot-status">● 未取得</span>
+  </div>
+
+</div>
           
         <!-- マリンワールド取得テスト -->
 <button onclick="getMarineWorld()" class="test-button">
