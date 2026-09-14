@@ -131,7 +131,8 @@
        左側：白地図を入れる欄
     ================================= */
     .map-panel {
-      min-height: 650px;
+  height: 650px;
+  min-height: 650px;
       background: #0e4b3e;
       border: 6px solid #123c34;
       padding: 16px;
@@ -423,6 +424,21 @@
 .map-cell {
   user-select: none;
 }
+/* ================================
+   テストボタン一覧
+================================= */
+.test-button-list {
+  max-height: 260px;
+  overflow-y: auto;
+
+  margin-top: 18px;
+  padding-right: 6px;
+}
+
+/* ボタン同士の間隔 */
+.test-button-list .test-button {
+  margin-top: 10px;
+}
   </style>
 </head>
 
@@ -606,45 +622,53 @@
 
 </div>
           
-        <!-- マリンワールド取得テスト -->
-<button onclick="getMarineWorld()" class="test-button">
-  テスト：マリンワールド海の中道を取得
-</button>
+<div class="test-button-list">
 
-<button onclick="getShiraito()" class="test-button">
-  テスト：白糸の滝を取得
-</button>
+  <button onclick="getMarineWorld()" class="test-button">
+    テスト：マリンワールド海の中道を取得
+  </button>
 
-<button onclick="getInochinotabi()" class="test-button">
-  テスト：いのちのたび博物館を取得
-</button>
+  <button onclick="getShiraito()" class="test-button">
+    テスト：白糸の滝を取得
+  </button>
 
-<button onclick="getMiyajidake()" class="test-button">
-  テスト：宮地嶽神社を取得
-</button>
+  <button onclick="getInochinotabi()" class="test-button">
+    テスト：いのちのたび博物館を取得
+  </button>
 
-<button onclick="getDazaifu()" class="test-button">
-  テスト：太宰府天満宮を取得
-</button>
+  <button onclick="getMiyajidake()" class="test-button">
+    テスト：宮地嶽神社を取得
+  </button>
 
-<button onclick="getUkiha()" class="test-button">
-  テスト：浮羽稲荷神社を取得
-</button>
-<button onclick="getShogetsu()" class="test-button">
-  テスト：松月乗船場を取得
-</button>
-<button onclick="getAsakura()" class="test-button">
-  テスト：三連水車を取得
-</button>
-<button onclick="getTirol()" class="test-button">
-  テスト：チロルチョコアウトレットを取得
-</button>
-<button onclick="getmomoland()" class="test-button">
-  テスト：もーもーらんどを取得
-</button>
-<button onclick="getAkarenga()" class="test-button">
-  テスト：赤レンガ館を取得
-</button>
+  <button onclick="getDazaifu()" class="test-button">
+    テスト：太宰府天満宮を取得
+  </button>
+
+  <button onclick="getUkiha()" class="test-button">
+    テスト：浮羽稲荷神社を取得
+  </button>
+
+  <button onclick="getShogetsu()" class="test-button">
+    テスト：松月乗船場を取得
+  </button>
+
+  <button onclick="getAsakura()" class="test-button">
+    テスト：三連水車を取得
+  </button>
+
+  <button onclick="getTirol()" class="test-button">
+    テスト：チロルチョコアウトレットを取得
+  </button>
+
+  <button onclick="getMomoland()" class="test-button">
+    テスト：もーもーらんどを取得
+  </button>
+
+  <button onclick="getAkarenga()" class="test-button">
+    テスト：赤レンガ館を取得
+  </button>
+
+</div>
 <!-- 選択した範囲の座標をコピー -->
 <button onclick="showSelectedArea()" class="test-button">
   選んだ範囲の座標をコピー
