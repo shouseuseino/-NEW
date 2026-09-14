@@ -440,14 +440,12 @@
   <div class="header-buttons">
 
     <!-- ステージ選択画面へ戻る -->
-    <a href="stage-select.html" class="header-button">
+    <a href="/-NEW/stage-select.html" class="header-button">
       ← ステージ選択に戻る
     </a>
 
     <!-- ホーム画面へ戻る -->
-    <a href="index.html" class="header-button">
-      🏠 ホームに戻る
-    </a>
+   <a href="/-NEW/index.html" class="header-button">🏠 ホームに戻る</a>
 
   </div>
 
@@ -841,7 +839,29 @@ function getMarineWorld() {
     "1 / 4 スポット";
 
 }
+// ========================================
+// 地図をクリックした場所の座標を調べる
+// ========================================
+document.getElementById("pixel-map").addEventListener("click", function(event) {
 
+  // クリックしたマスを取得
+  const cell = event.target;
+
+  // 地図のマス以外をクリックした場合は何もしない
+  if (!cell.classList.contains("map-cell")) {
+    return;
+  }
+
+  // マスに保存されているX・Y座標を取得
+  const x = cell.dataset.x;
+  const y = cell.dataset.y;
+
+  // クリックした場所を赤くする
+  cell.style.backgroundColor = "red";
+
+  // 座標を画面に表示
+  alert("この場所の座標\nX = " + x + "\nY = " + y);
+});
 </script>
 
 </body>
