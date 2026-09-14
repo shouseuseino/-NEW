@@ -1011,8 +1011,12 @@ function createPixelMap() {
 // マリンワールド取得
 // ========================================
 
+// ========================================
+// スポット10：マリンワールド海の中道を取得
+// ========================================
 function getMarineWorld() {
 
+  // マリンワールドの範囲を緑にする
   marineWorldArea.forEach(([x, y]) => {
 
     const cell = document.querySelector(
@@ -1025,22 +1029,18 @@ function getMarineWorld() {
     }
   });
 
-  // 10番目のスポットを公開
+  // スポット10の名前を公開
   document.getElementById("spot10-name").textContent =
     "マリンワールド海の中道";
 
   document.getElementById("spot10-status").textContent =
     "● GET!";
 
-  // 11スポット中1個取得
-  document.querySelector(".percent").textContent =
-    "9%";
+  // スポット10を取得済みにする
+  acquiredSpots.add(10);
 
-  document.querySelector(".progress-fill").style.width =
-    "9%";
-
-  document.querySelector(".spot-count").textContent =
-    "1 / 11 スポット";
+  // 達成度を自動更新
+  updateProgress();
 }
 
 //白糸の滝エリア//
@@ -3416,6 +3416,12 @@ const momolandoArea = [
 // スポット9：もーもーらんどを取得
 // ========================================
 function getMomoland() {
+
+  // 地図がまだ作られていない時は処理しない
+  if (document.querySelectorAll(".map-cell").length === 0) {
+    alert("地図を読み込み中です。少し待ってからもう一度押してください。");
+    return;
+  }
 
   // もーもーらんどの範囲を緑色にする
   momolandArea.forEach(([x, y]) => {
