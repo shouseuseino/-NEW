@@ -553,6 +553,7 @@
             </div>
 
           </div>
+          
         <!-- マリンワールド取得テスト -->
 <button onclick="getMarineWorld()" class="test-button">
   テスト：マリンワールド海の中道を取得
@@ -776,30 +777,7 @@ function createPixelMap() {
 /* =================================
    マリンワールドを取得する
 ================================= */
-function getMarineWorld() {
 
-  /* 地図上のすべてのマスを取得 */
-  const cells = document.querySelectorAll(".map-cell.land");
-
-
-  cells.forEach(cell => {
-
-    /* マスの位置 */
-    const x = Number(cell.dataset.x);
-    const y = Number(cell.dataset.y);
-
-
-    /* =================================
-       マリンワールド周辺の位置
-
-       まずは仮位置。
-       あとで実際の場所に合わせて調整する。
-    ================================= */
-    const centerX = 26;
-    const centerY = 30;
-
-    /* 色が広がる大きさ */
-    const radius = 8;
 
 
     /* 中心からの距離 */
@@ -821,7 +799,7 @@ function getMarineWorld() {
 
     }
 
-  });
+  
 
 
   /* =================================
@@ -834,7 +812,21 @@ function getMarineWorld() {
   document.getElementById("spot1-status").textContent =
     "● GET!";
 
-    const marineWorldArea = [
+    
+
+  /* =================================
+     達成度を25%に変更
+  ================================= */
+
+  document.querySelector(".percent").textContent =
+    "25%";
+
+  document.querySelector(".progress-fill").style.width =
+    "25%";
+
+  document.querySelector(".spot-count").textContent =
+    "1 / 4 スポット";
+const marineWorldArea = [
   [19, 28],
   [19, 29],
   [20, 30],
@@ -1012,39 +1004,26 @@ function getMarineWorld() {
   [28, 37],
   [22, 37],
 ];
-
-  /* =================================
-     達成度を25%に変更
-  ================================= */
-
-  document.querySelector(".percent").textContent =
-    "25%";
-
-  document.querySelector(".progress-fill").style.width =
-    "25%";
-
-  document.querySelector(".spot-count").textContent =
-    "1 / 4 スポット";
-
-}
 // ========================================
 // マリンワールド海の中道を取得
 // ========================================
 function getMarineWorld() {
 
-  // 選んだ座標を1マスずつ確認
+  // 指定した座標を順番に緑にする
   marineWorldArea.forEach(([x, y]) => {
 
-    // x・yが一致するマスを探す
     const cell = document.querySelector(
       `.map-cell[data-x="${x}"][data-y="${y}"]`
     );
 
-    // 福岡県内のマスだけ緑にする
-    if (cell && cell.classList.contains("land")) {
+    if (cell) {
       cell.classList.add("active");
+
+      // 範囲設定で付けた赤色を消す
+      cell.style.backgroundColor = "";
     }
   });
+
 
   // スポット名を表示
   document.getElementById("spot1-name").textContent =
@@ -1055,15 +1034,15 @@ function getMarineWorld() {
     "● GET!";
 
   // 達成度
-  document.getElementById("progress-percent").textContent =
+  document.querySelector(".percent").textContent =
     "25%";
 
-  // プログレスバー
-  document.getElementById("progress-bar").style.width =
+  // 達成度バー
+  document.querySelector(".progress-fill").style.width =
     "25%";
 
-  // スポット数
-  document.getElementById("spot-count").textContent =
+  // 取得スポット数
+  document.querySelector(".spot-count").textContent =
     "1 / 4 スポット";
 }
 // ========================================
