@@ -221,23 +221,7 @@
       flex: 1;
     }
 
-    .spot-panel h2 {
-      margin-top: 0;
-      font-size: 26px;
-    }
-
-   .spot-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  /* 一覧だけスクロールできる */
-  max-height: 430px;
-  overflow-y: auto;
-
-  padding-right: 6px;
-}
-
+    
     .spot-item {
       background: #fff8df;
       border: 3px solid #d9c88f;
@@ -424,20 +408,161 @@
 .map-cell {
   user-select: none;
 }
-/* ================================
-   テストボタン一覧
-================================= */
-.test-button-list {
-  max-height: 260px;
+/* ========================================
+   左右のメイン画面
+======================================== */
+.main-area {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 18px;
+
+  /* 左右の高さを揃える */
+  align-items: stretch;
+}
+
+
+/* ========================================
+   左：福岡県マップ
+======================================== */
+.map-panel {
+  height: 650px;
+  min-height: 0;
+
+  background: #0e4b3e;
+  border: 6px solid #123c34;
+  padding: 16px;
+
+  position: relative;
+}
+
+
+/* 地図を入れる場所 */
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+
+/* ========================================
+   右側全体
+======================================== */
+.right-panel {
+  height: 650px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  /* 右側が下へ伸びるのを防ぐ */
+  min-height: 0;
+}
+
+
+/* ========================================
+   達成度
+======================================== */
+.progress-panel {
+  flex-shrink: 0;
+
+  background: #fff8df;
+  border: 6px solid #123c34;
+
+  padding: 15px;
+}
+
+
+/* 達成度の数字を少し小さく */
+.percent {
+  font-size: 48px;
+  font-weight: bold;
+  text-align: right;
+  margin: 5px 0;
+}
+
+
+/* ========================================
+   スポット一覧
+======================================== */
+.spot-panel {
+  background: #8ddd72;
+  border: 6px solid #123c34;
+  padding: 14px;
+
+  /* 残った高さを全部使う */
+  flex: 1;
+
+  /* これが重要 */
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* スポット一覧だけスクロール */
+.spot-list {
+  flex: 1;
+  min-height: 0;
+
   overflow-y: auto;
 
-  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
   padding-right: 6px;
 }
 
-/* ボタン同士の間隔 */
-.test-button-list .test-button {
+
+/* 1スポットを少しコンパクトに */
+.spot-item {
+  flex-shrink: 0;
+
+  background: #fff8df;
+  border: 3px solid #d9c88f;
+
+  padding: 10px 12px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 17px;
+  font-weight: bold;
+}
+
+
+/* ========================================
+   テストボタン一覧
+======================================== */
+.test-button-list {
+  height: 170px;
+  flex-shrink: 0;
+
+  overflow-y: auto;
+
   margin-top: 10px;
+  padding-right: 6px;
+
+  border-top: 3px solid #123c34;
+}
+
+
+/* テストボタンも小さめに */
+.test-button-list .test-button {
+  margin-top: 7px;
+  padding: 9px;
+
+  font-size: 14px;
 }
   </style>
 </head>
@@ -660,7 +785,7 @@
     テスト：チロルチョコアウトレットを取得
   </button>
 
-  <button onclick="getMomoland()" class="test-button">
+  <button onclick="getmomoland()" class="test-button">
     テスト：もーもーらんどを取得
   </button>
 
