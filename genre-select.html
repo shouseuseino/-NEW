@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- スマホでも画面サイズに合わせて表示する -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ジャンル選択 | 福岡コレクション</title>
+
+  <style>
+    /* すべての要素のサイズ計算を統一する */
+    * {
+      box-sizing: border-box;
+    }
+
+    /* 画面全体の背景 */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: sans-serif;
+      color: white;
+
+      /* 元のステージ選択画面で使った背景画像 */
+      background-image: url("images/stage-background.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* タイトルやボタンを中央に並べる */
+    .container {
+      min-height: 100vh;
+      padding: 30px 15px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 35px;
+    }
+
+    /* ジャンル選択のタイトル */
+    .title {
+      padding: 15px 30px;
+      background: #ffca39;
+      border: 5px solid #754218;
+      border-radius: 12px;
+      box-shadow: 5px 6px 0 #34210e;
+
+      color: #ffffff;
+      font-size: clamp(25px, 5vw, 42px);
+      font-weight: bold;
+      text-shadow: 3px 3px #34210e;
+      text-align: center;
+    }
+
+    /* ジャンルボタンを2列に並べる */
+    .genre-list {
+      width: min(100%, 650px);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    /* ジャンルボタンの基本デザイン */
+    .genre-button {
+      min-height: 140px;
+      padding: 15px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      background: #f5bd48;
+      border: 5px solid #78431f;
+      border-radius: 12px;
+      box-shadow: 5px 6px 0 #34210e;
+
+      color: #33210d;
+      font-size: clamp(20px, 4vw, 29px);
+      font-weight: bold;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    /* ラーメンボタンを押したときの動き */
+    .genre-button.available:active {
+      transform: translateY(4px);
+      box-shadow: 1px 2px 0 #34210e;
+    }
+
+    /* まだ遊べないジャンルのデザイン */
+    .genre-button.locked {
+      background: #77716a;
+      color: #e5e5e5;
+      cursor: not-allowed;
+    }
+
+    /* 準備中の文字 */
+    .small-text {
+      font-size: 14px;
+    }
+
+    /* ホームに戻るボタン */
+    .back-button {
+      padding: 12px 25px;
+      background: #168b55;
+      border: 4px solid #074c30;
+      border-radius: 10px;
+      box-shadow: 4px 5px 0 #063c26;
+
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    /* スマホで見やすいように調整する */
+    @media (max-width: 480px) {
+      .container {
+        gap: 25px;
+      }
+
+      .genre-list {
+        gap: 12px;
+      }
+
+      .genre-button {
+        min-height: 115px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ジャンル選択画面 -->
+  <main class="container">
+
+    <!-- タイトル -->
+    <div class="title">
+      ジャンルをえらんでね！
+    </div>
+
+    <!-- ジャンル選択ボタン一覧 -->
+    <div class="genre-list">
+
+      <!-- ラーメンを押すとエリア選択へ -->
+      <a href="ramen-area.html"
+         class="genre-button available">
+        <span>🍜</span>
+        <span>ラーメン</span>
+      </a>
+
+      <!-- 今後追加するジャンル -->
+      <div class="genre-button locked">
+        <span>🔒</span>
+        <span>？？？</span>
+        <span class="small-text">準備中</span>
+      </div>
+
+      <div class="genre-button locked">
+        <span>🔒</span>
+        <span>？？？</span>
+        <span class="small-text">準備中</span>
+      </div>
+
+      <div class="genre-button locked">
+        <span>🔒</span>
+        <span>？？？</span>
+        <span class="small-text">準備中</span>
+      </div>
+
+    </div>
+
+    <!-- ホーム画面に戻る -->
+    <a href="index.html" class="back-button">
+      ◀ ホームに戻る
+    </a>
+
+  </main>
+
+</body>
+</html>
