@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- スマホでも画面サイズに合わせて表示する -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>エリア選択 | 福岡コレクション</title>
+
+  <style>
+    /* 画面全体の基本設定 */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: sans-serif;
+      color: white;
+
+      /* アップロードした夜の屋台街の背景画像 */
+      background-image: url("images/ramen-area-bg.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* 画面の中身を中央に配置する */
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 30px 20px;
+    }
+
+    /* エリア選択のタイトル */
+    .title {
+      background: #73401f;
+      border: 5px solid #d69b4a;
+      border-radius: 12px;
+      padding: 15px 30px;
+      font-size: clamp(24px, 5vw, 42px);
+      font-weight: bold;
+      text-align: center;
+      text-shadow: 3px 3px #302014;
+      box-shadow: 5px 6px 0 #302014;
+    }
+
+    /* エリア選択ボタンを並べる場所 */
+    .area-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      width: min(100%, 600px);
+    }
+
+    /* エリア選択ボタンの共通デザイン */
+    .area-button {
+      min-height: 145px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px 10px;
+
+      background: #f8c74f;
+      border: 5px solid #85501f;
+      border-radius: 12px;
+      box-shadow: 5px 6px 0 #302014;
+
+      color: #33210d;
+      font-size: clamp(20px, 4vw, 30px);
+      font-weight: bold;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    /* 選択可能なボタンを押したときの動き */
+    .area-button.available:active {
+      transform: translateY(4px);
+      box-shadow: 1px 2px 0 #302014;
+    }
+
+    /* 準備中のエリア */
+    .area-button.locked {
+      background: #74665c;
+      color: #e8e1d9;
+      cursor: not-allowed;
+    }
+
+    /* 準備中の説明 */
+    .small-text {
+      font-size: 15px;
+    }
+
+    /* 戻るボタン */
+    .back-button {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #754322;
+      border: 4px solid #d69b4a;
+      border-radius: 10px;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 4px 5px 0 #302014;
+    }
+
+    /* スマホ画面ではボタンを少し小さくする */
+    @media (max-width: 480px) {
+      .container {
+        gap: 22px;
+      }
+
+      .area-list {
+        gap: 12px;
+      }
+
+      .area-button {
+        min-height: 115px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- エリア選択画面全体 -->
+  <main class="container">
+
+    <!-- 画面タイトル -->
+    <div class="title">
+      エリアをえらんでね！
+    </div>
+
+    <!-- エリア選択ボタン -->
+    <div class="area-list">
+
+      <!-- 福岡市：現在選べるエリア -->
+      <a class="area-button available" href="ramen-game.html">
+        <span>🏙️</span>
+        <span>福岡市</span>
+      </a>
+
+      <!-- 今後追加するエリア -->
+      <div class="area-button locked">
+        <span>🔒</span>
+        <span>？？？</span>
+        <span class="small-text">準備中</span>
+      </div>
+
+      <div class="area-button locked">
+        <span>🔒</span>
+        <span>？？？</span>
+        <span class="small-text">準備中</span>
+      </div>
+
+      <div class="area-button locked">
+        <span>🔒</span>
+        <span>？？？</span>
+        <span class="small-text">準備中</span>
+      </div>
+
+    </div>
+
+    <!-- ジャンル選択画面へ戻る -->
+    <!-- genre-select.html は今後作る予定のファイル名 -->
+    <a class="back-button" href="genre-select.html">
+      ◀ もどる
+    </a>
+
+  </main>
+
+</body>
+</html>
