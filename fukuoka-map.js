@@ -83,13 +83,43 @@ async function createFukuokaMap() {
     // 白いマスを描く
     ctx.fillStyle = "#ffffff";
 
-    // 座標をCanvas上の位置に変換する
-    function convert(point) {
-      return [
-        (point[0] - minX) / (maxX - minX) * MAP_COLUMNS,
-        (maxY - point[1]) / (maxY - minY) * rows
-      ];
-    }
+    
+/* 福岡市の地図を正しい比率で中央に配置する */
+
+// 地図の外側に残す余白（マス数）
+const margin = 2;
+
+// 経度方向の距離を緯度に合わせて補正する
+const correctedWidth = (maxX - minX) * longitudeScale;
+const correctedHeight = maxY - minY;
+
+// 描画に使える横幅と縦幅
+const availableWidth = MAP_COLUMNS - margin * 2;
+const availableHeight = rows - margin * 2;
+
+// 縦横比を保つための倍率
+const scale = Math.min(
+  availableWidth / correctedWidth,
+  availableHeight / correctedHeight
+);
+
+// 描画後の地図の大きさ
+const drawnWidth = correctedWidth * scale;
+const drawnHeight = correctedHeight * scale;
+
+// 地図を中央に配置するための位置
+const offsetX = (MAP_COLUMNS - drawnWidth) / 2;
+const offsetY = (rows - drawnHeight) / 2;
+
+// 緯度経度をCanvas上の座標に変換する
+function convert(point) {
+  return [
+    (point[0] - minX) * longitudeScale * scale + offsetX,
+    (maxY - point[1]) * scale + offsetY
+  ];
+}
+
+   
 
     // 福岡市の区域を塗る
     polygons.forEach(polygon => {
