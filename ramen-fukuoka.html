@@ -77,15 +77,26 @@
       margin-top: 0;
     }
 
-    .map-area {
-      height: 420px;
-      background: #f0f6eb;
-      border: 3px dashed #9bbda1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-    }
+    
+/* ドットマップを表示するエリア */
+.map-area {
+  min-height: 420px;
+  height: auto;
+  background: #dcefe7;
+  border: 3px solid #9bbda1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  overflow: hidden;
+}
+
+/* 地図の描画サイズを調整 */
+.map-area canvas {
+  display: block;
+  max-width: 100%;
+}
+
 
     .map-placeholder {
       color: #72947b;
@@ -279,6 +290,7 @@
       alert("QRコード読み取り機能は、次の工程で追加します！");
     });
   </script>
-
+ <!-- 福岡市のドットマップを読み込む-->
+  <script src="fukuoka-map.js"></script>
 </body>
 </html>
