@@ -78,24 +78,45 @@
     }
 
     
-/* ドットマップを表示するエリア */
+
+/* 福岡市の地図を表示するエリア */
 .map-area {
-  min-height: 420px;
+  width: 100%;
+
+  /* 固定の高さをなくして余白を減らす */
   height: auto;
-  background: #dcefe7;
-  border: 3px solid #9bbda1;
+  min-height: 0;
+
+  /* 地図を中央に配置 */
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 15px;
+
+  /* 背景と枠線 */
+  background: #dcefe7;
+  border: 3px solid #9bbda1;
+
+  /* 地図の周囲に少し余白を作る */
+  padding: 10px;
+
   overflow: hidden;
 }
 
-/* 地図の描画サイズを調整 */
+/* 福岡市のドット地図 */
 .map-area canvas {
   display: block;
+
+  /* 横幅いっぱいに近い大きさで表示 */
+  width: 100%;
   max-width: 100%;
+
+  /* 縦横比を維持 */
+  height: auto;
+
+  /* ドットをくっきり表示 */
+  image-rendering: pixelated;
 }
+
 
 
     .map-placeholder {
@@ -191,9 +212,13 @@
         min-height: 350px;
       }
 
-      .map-area {
-        height: 320px;
-      }
+      
+/* スマホでも地図全体を表示 */
+.map-area {
+  height: auto;
+  min-height: 0;
+  padding: 6px;
+}
 
       .qr-button {
         font-size: 17px;
