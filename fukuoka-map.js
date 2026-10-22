@@ -46,8 +46,40 @@ async function createFukuokaMap() {
       throw new Error("福岡市の形状が見つかりません");
     }
 
-    // 緯度・経度の範囲を計算する
-    const points = polygons.flat(2);
+  
+// 福岡市本体から大きく離れた島を除外する
+// 各ポリゴンの外周から面積を計算し、
+// 最大の陸地区域を基準に表示対象を決める
+
+// 緯度経度からポリゴンの概算面積を求める
+function polygonArea(ring) {
+  let area = 0;
+
+  for (let i = 0; i < ring.length; i++) {
+    const current = ring[i];
+    const next = ring[(i + 1) % ring.length];
+
+    area += current[0] * next[1] - next[0] * current[1];
+  }
+
+  return Math.abs(area) / 2;
+}
+
+// 一定以上の大きさの区域だけ残す
+const areas = polygons.map(polygon => polygonArea(polygon[0]));
+const largestArea = Math.max(...areas);
+
+const mainPolygons = polygons.filter((polygon, index) => {
+  return areas[index] >= largestArea * 0.001;
+});
+
+// 表示対象のポリゴンを更新する
+polygons.length = 0;
+polygons.push(...mainPolygons);
+
+// 残した区域の座標を取得する
+const points = polygons.flat(2);
+
     const longitudes = points.map(point => point[0]);
     const latitudes = points.map(point => point[1]);
 
