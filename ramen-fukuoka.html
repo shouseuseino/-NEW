@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>福岡市ラーメン | 福岡コレクション</title>
+
+  <style>
+    /* ページ全体の基本設定 */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      color: #264b39;
+      background: linear-gradient(
+        #86d7ff 0%,
+        #d9f5ff 65%,
+        #b5e2aa 65%,
+        #86c47c 100%
+      );
+      min-height: 100vh;
+    }
+
+    /* 画面全体の配置 */
+    .game-container {
+      width: 95%;
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px 0;
+    }
+
+    /* 上部のタイトル部分 */
+    .header {
+      background: #ffffff;
+      border: 4px solid #397a57;
+      box-shadow: 5px 5px 0 #27583e;
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin: 5px 0;
+    }
+
+    .header p {
+      margin: 5px;
+    }
+
+    /* 地図と右側パネルを横並びにする */
+    .game-main {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    /* 共通のゲーム風パネル */
+    .panel {
+      background: #fffef6;
+      border: 4px solid #397a57;
+      box-shadow: 5px 5px 0 #27583e;
+      padding: 15px;
+    }
+
+    /* 福岡市の地図表示エリア */
+    .map-panel {
+      min-height: 500px;
+      text-align: center;
+    }
+
+    .map-panel h2 {
+      margin-top: 0;
+    }
+
+    .map-area {
+      height: 420px;
+      background: #f0f6eb;
+      border: 3px dashed #9bbda1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .map-placeholder {
+      color: #72947b;
+      line-height: 2;
+    }
+
+    /* 右側の情報パネル */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 達成度 */
+    .progress-number {
+      font-size: 40px;
+      font-weight: bold;
+      color: #34965a;
+      text-align: center;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 22px;
+      background: #dce7d9;
+      border: 3px solid #397a57;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #58bd70;
+    }
+
+    /* 店舗一覧 */
+    .shop-list {
+      max-height: 290px;
+      overflow-y: auto;
+    }
+
+    .shop {
+      padding: 10px;
+      margin-bottom: 7px;
+      background: #e8efe5;
+      border: 2px solid #b5c9b7;
+      font-size: 14px;
+    }
+
+    /* QRコードボタン */
+    .qr-button {
+      display: block;
+      width: 100%;
+      margin-top: 25px;
+      padding: 18px;
+      border: 4px solid #235d91;
+      background: #3496e3;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 5px 5px 0 #17466c;
+      cursor: pointer;
+    }
+
+    .qr-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 1px 1px 0 #17466c;
+    }
+
+    /* エリア選択に戻るボタン */
+    .back-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 18px;
+      background: #fff;
+      color: #27583e;
+      border: 3px solid #397a57;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* スマホ用の配置 */
+    @media (max-width: 750px) {
+      .game-main {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .map-panel {
+        min-height: 350px;
+      }
+
+      .map-area {
+        height: 320px;
+      }
+
+      .qr-button {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ゲーム画面全体 -->
+  <div class="game-container">
+
+    <!-- タイトル -->
+    <header class="header">
+      <h1>🍜 福岡コレクション</h1>
+      <p>ラーメンジャンル / 福岡市エリア</p>
+    </header>
+
+    <!-- 地図と店舗情報 -->
+    <main class="game-main">
+
+      <!-- 左側：地図 -->
+      <section class="panel map-panel">
+        <h2>福岡市ドットマップ</h2>
+
+        <div class="map-area">
+          <div class="map-placeholder">
+            🗺️<br>
+            ここに福岡市の<br>
+            ドット地図を表示します
+          </div>
+        </div>
+      </section>
+
+      <!-- 右側：達成度と店舗一覧 -->
+      <aside class="side-panel">
+
+        <!-- 達成度 -->
+        <section class="panel">
+          <h2>🏆 達成度</h2>
+          <div class="progress-number" id="progress">0%</div>
+
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <p id="shopCount">0 / 15 店舗</p>
+        </section>
+
+        <!-- 店舗一覧 -->
+        <section class="panel">
+          <h2>🍜 店舗一覧</h2>
+          <div class="shop-list" id="shopList"></div>
+        </section>
+
+      </aside>
+    </main>
+
+    <!-- QRコード読み取りボタン -->
+    <button class="qr-button" type="button" id="qrButton">
+      📷 QRコードを読み取る
+    </button>
+
+    <!-- エリア選択に戻る -->
+    <a class="back-button" href="area-select.html">
+      ← エリア選択に戻る
+    </a>
+
+  </div>
+
+  <script>
+    // 今回は15店舗を仮の名前で表示する
+    // 実際のラーメン店の名前は後から設定する
+    const shops = Array.from({ length: 15 }, (_, index) => ({
+      id: index + 1,
+      name: `ラーメン店 ${index + 1}`,
+      collected: false
+    }));
+
+    // 店舗一覧を表示する場所を取得
+    const shopList = document.getElementById("shopList");
+
+    // 15店舗分の表示を作る
+    shops.forEach(shop => {
+      const item = document.createElement("div");
+      item.className = "shop";
+      item.textContent = `🔒 ${shop.name} - 未獲得`;
+      shopList.appendChild(item);
+    });
+
+    // QR読み取り機能は次の工程で実装する
+    document.getElementById("qrButton").addEventListener("click", () => {
+      alert("QRコード読み取り機能は、次の工程で追加します！");
+    });
+  </script>
+
+</body>
+</html>
