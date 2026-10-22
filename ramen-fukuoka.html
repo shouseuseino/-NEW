@@ -52,12 +52,20 @@
       margin: 5px;
     }
 
-    /* 地図と右側パネルを横並びにする */
-    .game-main {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
+    
+/* 地図と店舗情報を横並びにする */
+.game-main {
+  display: grid;
+
+  /* 地図を広め、右側を少し狭めにする */
+  grid-template-columns: 2fr 1fr;
+
+  gap: 20px;
+
+  /* 左右のパネルを縦方向に引き伸ばさない */
+  align-items: start;
+}
+
 
     /* 共通のゲーム風パネル */
     .panel {
@@ -67,11 +75,14 @@
       padding: 15px;
     }
 
-    /* 福岡市の地図表示エリア */
-    .map-panel {
-      min-height: 500px;
-      text-align: center;
-    }
+  
+/* 地図パネルの余分な高さをなくす */
+.map-panel {
+  min-height: 0;
+  height: fit-content;
+  text-align: center;
+}
+
 
     .map-panel h2 {
       margin-top: 0;
@@ -209,7 +220,7 @@
       }
 
       .map-panel {
-        min-height: 350px;
+        min-height: 0;
       }
 
       
