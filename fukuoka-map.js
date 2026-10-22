@@ -140,6 +140,26 @@ async function createFukuokaMap() {
     mapArea.innerHTML = "";
     mapArea.appendChild(dotCanvas);
 
+    
+// 地図の大きさと配置を調整する
+// ドットの形を崩さず、横幅いっぱいに表示する
+dotCanvas.style.width = "100%";
+dotCanvas.style.maxWidth = "100%";
+dotCanvas.style.height = "auto";
+dotCanvas.style.display = "block";
+dotCanvas.style.imageRendering = "pixelated";
+
+// 地図の周囲の余白を小さくする
+mapArea.style.height = "auto";
+mapArea.style.minHeight = "0";
+mapArea.style.padding = "5px";
+
+// 地図を中央に配置する
+mapArea.style.display = "flex";
+mapArea.style.justifyContent = "center";
+mapArea.style.alignItems = "center";
+
+
     // スマホでも地図全体が収まるようにする
     dotCanvas.style.width = "100%";
     dotCanvas.style.height = "auto";
