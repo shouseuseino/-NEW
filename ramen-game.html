@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- スマホでも画面幅に合わせて表示する -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>福岡市ラーメン | 福岡コレクション</title>
+
+  <style>
+    /* ===== 色や背景の設定 ===== */
+    :root {
+      --main-color: #3c7651;
+      --light-color: #e8f4e8;
+      --text-color: #264b39;
+
+      /* 背景画像は後から設定できる */
+      --game-background: none;
+    }
+
+    /* ===== ページ全体 ===== */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: sans-serif;
+      color: var(--text-color);
+
+      background-color: #d9edda;
+      background-image: var(--game-background);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* ===== 上部のロゴ ===== */
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 20px;
+      max-width: 1300px;
+      margin: auto;
+    }
+
+    .game-logo {
+      width: min(260px, 55%);
+      height: auto;
+    }
+
+    .stage-title {
+      padding: 12px 20px;
+      background: white;
+      border: 3px solid var(--main-color);
+      border-radius: 15px;
+      font-weight: bold;
+    }
+
+    /* ===== 地図と店舗一覧の配置 ===== */
+    .main-area {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 20px;
+      max-width: 1300px;
+      margin: 10px auto;
+      padding: 0 20px;
+      align-items: start;
+    }
+
+    /* ===== 地図エリア ===== */
+    .map-panel {
+      background: white;
+      border: 4px solid var(--main-color);
+      border-radius: 22px;
+      padding: 20px;
+      min-height: 570px;
+    }
+
+    .map-panel h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    /* 後から福岡市のドット地図をここに表示する */
+    .map-area {
+      width: 100%;
+      min-height: 450px;
+      background: #f5faf5;
+      border: 2px dashed #9cbea5;
+      border-radius: 15px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .map-message {
+      color: #789681;
+      line-height: 1.8;
+    }
+
+    /* ===== 右側の情報エリア ===== */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .progress-panel,
+    .shop-panel {
+      background: white;
+      border: 4px solid var(--main-color);
+      border-radius: 22px;
+      padding: 20px;
+    }
+
+    /* ===== 達成度 ===== */
+    .progress-panel h2 {
+      margin-top: 0;
+    }
+
+    .progress-number {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 22px;
+      background: #d9e5da;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #64bb70;
+      transition: width 0.3s;
+    }
+
+    /* ===== ラーメン店舗一覧 ===== */
+    .shop-panel h2 {
+      margin-top: 0;
+    }
+
+    .shop-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .shop-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      background: var(--light-color);
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .shop-item::before {
+      content: "□ ";
+      color: var(--main-color);
+    }
+
+    /* 訪問済み店舗に適用するデザイン */
+    .shop-item.completed {
+      background: #c0e9c3;
+    }
+
+    .shop-item.completed::before {
+      content: "✓ ";
+    }
+
+    /* ===== QR読み取りボタン ===== */
+    .qr-button {
+      width: 100%;
+      padding: 17px;
+      border: none;
+      border-radius: 14px;
+      background: var(--main-color);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    /* 機能を作るまでは押せない状態にする */
+    .qr-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ===== 戻るボタン ===== */
+    .back-area {
+      max-width: 1300px;
+      margin: 20px auto 40px;
+      padding: 0 20px;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 14px 24px;
+      background: white;
+      border: 3px solid var(--main-color);
+      border-radius: 15px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* ===== スマホ対応 ===== */
+    @media (max-width: 850px) {
+      .game-header {
+        padding: 15px;
+      }
+
+      .stage-title {
+        padding: 10px;
+        font-size: 13px;
+      }
+
+      .main-area {
+        grid-template-columns: 1fr;
+        padding: 0 12px;
+      }
+
+      .map-panel {
+        min-height: auto;
+        padding: 12px;
+      }
+
+      .map-area {
+        min-height: 350px;
+      }
+
+      .progress-panel,
+      .shop-panel {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== ゲーム画面上部 ===== -->
+  <header class="game-header">
+
+    <!-- 以前の福岡コレクションのロゴを使用 -->
+    <img
+      src="images/logonew.png"
+      alt="福岡コレクション"
+      class="game-logo"
+    >
+
+    <div class="stage-title">
+      🍜 福岡市ラーメン
+    </div>
+
+  </header>
+
+  <!-- ===== メイン画面 ===== -->
+  <main class="main-area">
+
+    <!-- 左側：福岡市の地図 -->
+    <section class="map-panel">
+
+      <h2>福岡市ラーメンマップ</h2>
+
+      <div class="map-area" id="map-area">
+
+        <!-- 次のステップでドット地図を追加 -->
+        <div class="map-message">
+          🗺️<br>
+          ここに福岡市の<br>
+          ドット地図を表示します
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- 右側：達成度と店舗一覧 -->
+    <aside class="right-panel">
+
+      <!-- 達成度 -->
+      <section class="progress-panel">
+
+        <h2>🏆 達成度</h2>
+
+        <div class="progress-number">
+          <span id="completed-count">0</span> / 15
+        </div>
+
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            id="progress-fill"
+          ></div>
+        </div>
+
+      </section>
+
+      <!-- ラーメン店舗一覧 -->
+      <section class="shop-panel">
+
+        <h2>🍜 ラーメン店舗一覧</h2>
+
+        <ul class="shop-list" id="shop-list">
+          <!-- JavaScriptで15店舗を表示 -->
+        </ul>
+
+      </section>
+
+      <!-- QRコード読み取り -->
+      <button class="qr-button" disabled>
+        📷 QRコードを読み取る（準備中）
+      </button>
+
+    </aside>
+
+  </main>
+
+  <!-- ===== エリア選択画面に戻る ===== -->
+  <div class="back-area">
+
+    <a href="ramen-area.html" class="back-button">
+      ◀ ステージ選択に戻る
+    </a>
+
+  </div>
+
+  <script>
+    /* ===== ラーメン15店舗の設定 ===== */
+
+    // 後から店舗を追加・変更しやすいように配列で管理
+    const ramenShops = [
+      "風靡",
+      "はかたや",
+      "元祖長浜",
+      "ふくちゃんらーめん",
+      "いってつ",
+      "しんしん",
+      "大砲ラーメン",
+      "ラーメン膳",
+      "一双",
+      "楽勝",
+      "メンドロイド",
+      "丸源ラーメン",
+      "大森や",
+      "てんてんラーメン",
+      "らーめんまさちゃん"
+    ];
+
+    /* ===== 店舗一覧を画面に表示 ===== */
+
+    const shopList = document.getElementById("shop-list");
+
+    ramenShops.forEach((shopName) => {
+
+      // 店舗を表示する行を作成
+      const item = document.createElement("li");
+
+      // デザイン用のクラスを設定
+      item.className = "shop-item";
+
+      // 店舗名を表示
+      item.textContent = shopName;
+
+      // 一覧に追加
+      shopList.appendChild(item);
+
+    });
+
+    /* ===== 達成度を更新する機能 ===== */
+
+    // 今はまだ訪問済み店舗がないので0
+    const completedShops = new Set();
+
+    function updateProgress() {
+
+      const completed = completedShops.size;
+      const total = ramenShops.length;
+
+      // 達成した店舗数を表示
+      document.getElementById("completed-count")
+        .textContent = completed;
+
+      // 達成度バーを更新
+      const percentage = (completed / total) * 100;
+
+      document.getElementById("progress-fill")
+        .style.width = percentage + "%";
+    }
+
+    // 最初の達成度を表示
+    updateProgress();
+
+  </script>
+
+</body>
+</html>
