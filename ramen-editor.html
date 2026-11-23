@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>福岡市ラーメン | 範囲編集</title>
+<style>
+/* ===== 管理画面の基本デザイン ===== */
+:root { --green:#3c7651; --pale:#e8f4e8; --ink:#264b39; }
+* { box-sizing:border-box; }
+body { margin:0; background:#d9edda; font-family:system-ui,sans-serif; color:var(--ink); }
+header { max-width:1250px; margin:auto; padding:18px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+header img { width:min(240px,55vw); height:auto; }
+header a { color:var(--ink); }
+main { max-width:1250px; margin:0 auto 30px; padding:0 16px; display:grid; grid-template-columns:minmax(0,1.7fr) minmax(270px,1fr); gap:18px; align-items:start; }
+.panel { background:white; border:4px solid var(--green); border-radius:20px; padding:16px; min-width:0; }
+h1 { font-size:1.3rem; margin:0; } h2 { margin:0 0 14px; font-size:1.2rem; }
+.hint { color:#526d5a; line-height:1.6; font-size:.9rem; }
+/* ===== 元のゲームと同じ地図の表示 ===== */
+.map-area { background:#f5faf5; border:2px dashed #9cbea5; border-radius:15px; min-height:400px; padding:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#pixel-map { display:grid; width:100%; max-width:600px; height:auto; aspect-ratio:1; margin:0 auto; gap:0; touch-action:none; user-select:none; }
+.map-cell { background:transparent; min-width:0; min-height:0; }
+.map-cell.land { background:white; cursor:crosshair; }
+.map-cell.land.selected { background:#63c856; }
+.map-cell.land.other { background:#d7e5d8; }
+#map-status { color:#789681; }
+.controls { display:grid; gap:12px; }
+label { font-weight:700; display:block; margin-bottom:5px; }
+select,button { font:inherit; border-radius:10px; padding:12px; width:100%; }
+select { border:2px solid #a6c5ac; background:white; }
+button { border:2px solid var(--green); background:var(--green); color:white; font-weight:700; cursor:pointer; }
+button.secondary { background:white; color:var(--ink); }
+button:disabled { opacity:.55; cursor:not-allowed; }
+.button-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+button.active { background:#245b36; outline:3px solid #a1d6a8; }
+#status { min-height:1.4em; font-size:.9rem; color:#3c7651; overflow-wrap:anywhere; }
+@media(max-width:800px) { main { grid-template-columns:1fr; } .map-area { min-height:300px; } }
+</style>
+</head>
+<body>
+<header>
+  <img src="images/logonew.png" alt="福岡コレクション">
+  <div><h1>🍜 福岡市ラーメン 範囲編集</h1><a href="ramen-game.html">ゲーム画面に戻る</a></div>
+</header>
+<main>
+  <section class="panel">
+    <h2>福岡市ドット地図</h2>
+    <div class="map-area" id="map-area">
+      <div id="pixel-map"></div>
+      <p id="map-status">福岡市の地図を読み込み中...</p>
+    </div>
+    <p class="hint">地図の白いマスをクリック・ドラッグして範囲を指定できます。スマホでは指でなぞれます。緑色が選択中の店舗の範囲です。</p>
+  </section>
+  <aside class="panel controls">
+    <div><label for="shop">編集する店舗</label><select id="shop"></select></div>
+    <div><label>編集モード</label><div class="button-grid"><button id="paint" class="active" type="button">🖌 塗る</button><button id="erase" class="secondary" type="button">消す</button></div></div>
+    <p id="count">選択中の店舗：0マス</p>
+    <button id="save" type="button">このブラウザに一時保存</button>
+    <button id="export" type="button">JSONファイルを書き出す</button>
+    <button id="import" class="secondary" type="button">保存したJSONを読み込む</button>
+    <input id="file" type="file" accept=".json,application/json" hidden>
+    <p id="status" role="status"></p>
+    <p class="hint">※「一時保存」はこのブラウザだけに保存されます。別端末に移すときはJSONを書き出して保管してください。まだゲーム画面には反映されません。</p>
+    <p class="hint">※これは編集用の試作画面です。GitHub Pagesに公開するとURLを知る人が開けるため、認証付きの管理者専用画面ではありません。</p>
+  </aside>
+</main>
+<script>
+/* ===== ゲーム本体と同じ15店舗 ===== */
+const ramenShops = [
+      "風靡",
+      "はかたや",
+      "元祖長浜",
+      "ふくちゃんらーめん",
+      "いってつ",
+      "しんしん",
+      "大砲ラーメン",
+      "ラーメン膳",
+      "一双",
+      "楽勝",
+      "メンドロイド",
+      "丸源ラーメン",
+      "大森や",
+      "てんてんラーメン",
+      "らーめんまさちゃん"
+    ];;
+const GEOJSON_URL = "https://wapi.bodik.jp/estat/polygon?organ_code=401307";
+const MAP_COLUMNS = 100;
+const pixelMap = document.getElementById("pixel-map");
+const mapStatus = document.getElementById("map-status");
+let mapReady = false;
+/* ===== 元のゲームから地図生成処理をそのまま使用 ===== */
+// 点が閉じた輪郭の内側にあるか調べる
+function pointInRing(point, ring) {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > y) !== (yj > y) &&
+        x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+// 外周と穴の両方を考慮する
+function pointInPolygon(point, polygon) {
+  if (!polygon.length || !pointInRing(point, polygon[0])) return false;
+  return !polygon.slice(1).some(hole => pointInRing(point, hole));
+}
+
+// Polygon・MultiPolygon・FeatureCollectionに対応する
+function collectPolygons(data) {
+  const polygons = [];
+  function addGeometry(geometry) {
+    if (!geometry) return;
+    if (geometry.type === "Polygon") polygons.push(geometry.coordinates);
+    else if (geometry.type === "MultiPolygon") polygons.push(...geometry.coordinates);
+    else if (geometry.type === "GeometryCollection") {
+      geometry.geometries.forEach(addGeometry);
+    }
+  }
+  function walk(item) {
+    if (!item) return;
+    if (item.type === "FeatureCollection") item.features.forEach(walk);
+    else if (item.type === "Feature") addGeometry(item.geometry);
+    else addGeometry(item);
+  }
+  walk(data);
+  return polygons;
+}
+
+// 上の左側に離れている「数マスだけ」の小さな集まりを除外する
+// ほかの陸地は残す（最大の陸地だけに限定しない）
+function removeTinyUpperLeftIslands(cells, rows, cols) {
+  const visited = new Uint8Array(cells.length);
+  const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const groups = [];
+
+  for (let start = 0; start < cells.length; start++) {
+    if (!cells[start] || visited[start]) continue;
+    const queue = [start];
+    const group = [];
+    visited[start] = 1;
+    let minRow = rows;
+    let maxRow = 0;
+    let minCol = cols;
+    let maxCol = 0;
+
+    for (let head = 0; head < queue.length; head++) {
+      const index = queue[head];
+      group.push(index);
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      minRow = Math.min(minRow, row);
+      maxRow = Math.max(maxRow, row);
+      minCol = Math.min(minCol, col);
+      maxCol = Math.max(maxCol, col);
+      for (const [dr, dc] of directions) {
+        const nr = row + dr;
+        const nc = col + dc;
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+        const next = nr * cols + nc;
+        if (cells[next] && !visited[next]) {
+          visited[next] = 1;
+          queue.push(next);
+        }
+      }
+    }
+    groups.push({ group, minRow, maxRow, minCol, maxCol });
+  }
+
+  // 本体との位置関係から「左上」を判断する
+  const main = groups.reduce((a, b) =>
+    !a || b.group.length > a.group.length ? b : a, null);
+  if (!main) return;
+
+  // 本体より左上にあり、8マス以下の離れた集まりだけ削除
+  for (const item of groups) {
+    if (item === main) continue;
+    if (item.group.length <= 8 &&
+        item.maxRow < main.minRow &&
+        item.maxCol < main.minCol) {
+      item.group.forEach(index => { cells[index] = 0; });
+    }
+  }
+}
+
+async function createFukuokaMap() {
+  try {
+    const response = await fetch(GEOJSON_URL);
+    if (!response.ok) throw new Error("地図データの取得に失敗しました");
+    const geojson = await response.json();
+    const polygons = collectPolygons(geojson);
+    if (!polygons.length) throw new Error("輪郭データが見つかりません");
+
+    // すべての陸地の座標を使う。最大の1つに絞らない
+    const points = polygons.flatMap(polygon => polygon.flatMap(ring => ring));
+    const xs = points.map(point => point[0]);
+    const ys = points.map(point => point[1]);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+
+    // 経度を緯度に合わせて補正し、地図の形が伸びないようにする
+    const latitude = (minY + maxY) / 2;
+    const scaleX = Math.cos(latitude * Math.PI / 180);
+    const mapWidth = (maxX - minX) * scaleX;
+    const mapHeight = maxY - minY;
+    const MAP_ROWS = Math.max(1, Math.round(MAP_COLUMNS * mapHeight / mapWidth));
+
+    // 各マスの中心が福岡市の中にあるか判定
+    const cells = new Uint8Array(MAP_COLUMNS * MAP_ROWS);
+    for (let row = 0; row < MAP_ROWS; row++) {
+      for (let col = 0; col < MAP_COLUMNS; col++) {
+        const longitude = minX + (col + 0.5) / MAP_COLUMNS * (maxX - minX);
+        const latitude = maxY - (row + 0.5) / MAP_ROWS * (maxY - minY);
+        if (polygons.some(polygon => pointInPolygon([longitude, latitude], polygon))) {
+          cells[row * MAP_COLUMNS + col] = 1;
+        }
+      }
+    }
+
+    // 左上の離れた数マスだけを除外
+    removeTinyUpperLeftIslands(cells, MAP_ROWS, MAP_COLUMNS);
+
+    // 残った陸地を囲む範囲を求め、余分な余白を取り除く
+    let top = MAP_ROWS, bottom = -1, left = MAP_COLUMNS, right = -1;
+    for (let row = 0; row < MAP_ROWS; row++) {
+      for (let col = 0; col < MAP_COLUMNS; col++) {
+        if (!cells[row * MAP_COLUMNS + col]) continue;
+        top = Math.min(top, row);
+        bottom = Math.max(bottom, row);
+        left = Math.min(left, col);
+        right = Math.max(right, col);
+      }
+    }
+    if (bottom < top) throw new Error("地図のマスが作れませんでした");
+
+    const visibleCols = right - left + 1;
+    const visibleRows = bottom - top + 1;
+    pixelMap.style.gridTemplateColumns = `repeat(${visibleCols}, minmax(0, 1fr))`;
+    pixelMap.style.gridTemplateRows = `repeat(${visibleRows}, minmax(0, 1fr))`;
+    pixelMap.style.aspectRatio = `${visibleCols} / ${visibleRows}`;
+
+    // 地図本体を中央に配置する
+    const fragment = document.createDocumentFragment();
+    for (let row = top; row <= bottom; row++) {
+      for (let col = left; col <= right; col++) {
+        const cell = document.createElement("div");
+        cell.className = cells[row * MAP_COLUMNS + col] ? "map-cell land" : "map-cell";
+        cell.dataset.x = col;
+        cell.dataset.y = row;
+        fragment.appendChild(cell);
+      }
+    }
+    pixelMap.replaceChildren(fragment);
+    mapStatus.textContent = "";
+    mapReady = true;
+    renderPaint();
+  } catch (error) {
+    console.error(error);
+    mapStatus.textContent = "地図を表示できませんでした。地図データの取得先を確認してください。";
+  }
+}
+
+
+/* ===== 範囲編集機能 ===== */
+const shopSelect = document.getElementById("shop");
+const status = document.getElementById("status");
+const count = document.getElementById("count");
+const storageKey = "fukuoka-ramen-zones-v1";
+let mode = "paint";
+let dragging = false;
+let zones = Object.fromEntries(ramenShops.map(name => [name, []]));
+ramenShops.forEach(name => { const option = document.createElement("option"); option.value = name; option.textContent = name; shopSelect.appendChild(option); });
+function normalized(input) {
+  const result = Object.fromEntries(ramenShops.map(name => [name, []]));
+  if (!input || typeof input !== "object") return result;
+  for (const name of ramenShops) {
+    const values = input[name];
+    if (!Array.isArray(values)) continue;
+    result[name] = [...new Set(values.filter(value => typeof value === "string" && /^\d+,\d+$/.test(value)))];
+  }
+  return result;
+}
+try { const saved = localStorage.getItem(storageKey); if (saved) zones = normalized(JSON.parse(saved)); } catch(e) { status.textContent = "一時保存データを読み込めませんでした"; }
+function renderPaint() {
+  if (!mapReady) return;
+  const selected = new Set(zones[shopSelect.value] || []);
+  const others = new Set(ramenShops.filter(n => n !== shopSelect.value).flatMap(n => zones[n]));
+  pixelMap.querySelectorAll(".map-cell.land").forEach(cell => {
+    const key = `${cell.dataset.x},${cell.dataset.y}`;
+    cell.classList.toggle("selected", selected.has(key));
+    cell.classList.toggle("other", !selected.has(key) && others.has(key));
+  });
+  count.textContent = `選択中の店舗：${selected.size}マス`;
+}
+function editCell(cell) {
+  if (!cell || !cell.classList.contains("land")) return;
+  const key = `${cell.dataset.x},${cell.dataset.y}`;
+  const name = shopSelect.value;
+  if (mode === "paint") {
+    // 1つのマスが複数店舗に重ならないようにする
+    for (const other of ramenShops) if (other !== name) zones[other] = zones[other].filter(x => x !== key);
+    if (!zones[name].includes(key)) zones[name].push(key);
+  } else {
+    zones[name] = zones[name].filter(x => x !== key);
+  }
+  renderPaint();
+}
+function cellAt(event) {
+  const target = document.elementFromPoint(event.clientX,event.clientY);
+  return target?.closest?.(".map-cell");
+}
+pixelMap.addEventListener("pointerdown", event => {
+  if (!cellAt(event)?.classList.contains("land")) return;
+  dragging = true;
+  pixelMap.setPointerCapture(event.pointerId);
+  editCell(cellAt(event));
+});
+pixelMap.addEventListener("pointermove", event => { if (dragging) editCell(cellAt(event)); });
+for (const eventName of ["pointerup","pointercancel","lostpointercapture"]) pixelMap.addEventListener(eventName, () => { dragging = false; });
+shopSelect.addEventListener("change",renderPaint);
+for (const type of ["paint","erase"]) document.getElementById(type).addEventListener("click",() => {
+  mode = type;
+  for (const t of ["paint","erase"]) {
+    document.getElementById(t).classList.toggle("active",t === mode);
+    document.getElementById(t).classList.toggle("secondary",t !== mode);
+  }
+});
+document.getElementById("save").addEventListener("click",() => {
+  try { localStorage.setItem(storageKey,JSON.stringify(zones)); status.textContent = "このブラウザに一時保存しました"; }
+  catch(e) { status.textContent = "保存できませんでした。JSONを書き出してください"; }
+});
+document.getElementById("export").addEventListener("click",() => {
+  const blob = new Blob([JSON.stringify({version:1,columns:MAP_COLUMNS,zones},null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download="ramen-zones.json"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  status.textContent = "JSONファイルを書き出しました";
+});
+document.getElementById("import").addEventListener("click",()=>document.getElementById("file").click());
+document.getElementById("file").addEventListener("change",async event => {
+  const file = event.target.files[0]; if (!file) return;
+  try { const parsed = JSON.parse(await file.text()); if (parsed.columns !== MAP_COLUMNS || !parsed.zones) throw new Error("形式が異なります"); zones = normalized(parsed.zones); renderPaint(); status.textContent = "JSONを読み込みました"; }
+  catch(e) { status.textContent = "JSONを読み込めませんでした："+e.message; }
+  event.target.value="";
+});
+/* ===== 地図を描画する ===== */
+createFukuokaMap();
+</script>
+</body>
+</html>
