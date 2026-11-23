@@ -263,11 +263,20 @@
 }
 
 /* ドット地図全体 */
+/* ===== ドット地図を中央に配置 ===== */
 #pixel-map {
   display: grid;
+
+  /* 地図の横幅 */
   width: 100%;
   max-width: 600px;
+
+  /* 地図の高さはJavaScriptで調整 */
   aspect-ratio: 1;
+
+  /* 地図を中央に配置 */
+  margin: 0 auto;
+
   gap: 0;
 }
 
