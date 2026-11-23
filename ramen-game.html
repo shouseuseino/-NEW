@@ -270,6 +270,7 @@
   /* 地図の横幅 */
   width: 100%;
   max-width: 600px;
+  height: auto;
 
   /* 地図の高さはJavaScriptで調整 */
   aspect-ratio: 1;
@@ -333,14 +334,10 @@
 
       <h2>福岡市ラーメンマップ</h2>
 
+      <!-- 福岡市のドット地図を表示する場所（重複した枠を整理） -->
       <div class="map-area" id="map-area">
-
-        <!-- 福岡市のドット地図を表示する場所 -->
-<div class="map-area" id="map-area">
-  <div id="pixel-map"></div>
-  <p id="map-status">福岡市の地図を読み込み中...</p>
-</div>
-
+        <div id="pixel-map"></div>
+        <p id="map-status">福岡市の地図を読み込み中...</p>
       </div>
 
     </section>
@@ -463,217 +460,188 @@
 
 /* ===== 福岡市のドット地図を作成 ===== */
 
-// 前に使用した福岡市のGeoJSON取得先
-const GEOJSON_URL =
-  "https://wapi.bodik.jp/estat/polygon?organ_code=401307";
-
-// 地図の横方向のマス数
+// 福岡市のGeoJSONデータ
+const GEOJSON_URL = "https://wapi.bodik.jp/estat/polygon?organ_code=401307";
 const MAP_COLUMNS = 100;
-
-// 地図の表示場所
 const pixelMap = document.getElementById("pixel-map");
 const mapStatus = document.getElementById("map-status");
 
-// 点がポリゴンの内側にあるかを調べる
+// 点が閉じた輪郭の内側にあるか調べる
 function pointInRing(point, ring) {
   const [x, y] = point;
   let inside = false;
-
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const xi = ring[i][0];
-    const yi = ring[i][1];
-    const xj = ring[j][0];
-    const yj = ring[j][1];
-
-    const crosses =
-      (yi > y) !== (yj > y) &&
-      x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-
-    if (crosses) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > y) !== (yj > y) &&
+        x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
       inside = !inside;
     }
   }
-
   return inside;
 }
 
-// 穴のあるポリゴンにも対応する
+// 外周と穴の両方を考慮する
 function pointInPolygon(point, polygon) {
-  if (!polygon.length) return false;
-
-  // 外側の輪郭に入っていなければ対象外
-  if (!pointInRing(point, polygon[0])) {
-    return false;
-  }
-
-  // 内側の穴に入っている場合は対象外
-  for (let i = 1; i < polygon.length; i++) {
-    if (pointInRing(point, polygon[i])) {
-      return false;
-    }
-  }
-
-  return true;
+  if (!polygon.length || !pointInRing(point, polygon[0])) return false;
+  return !polygon.slice(1).some(hole => pointInRing(point, hole));
 }
 
-// GeoJSONのPolygonとMultiPolygonを統一して扱う
+// Polygon・MultiPolygon・FeatureCollectionに対応する
 function collectPolygons(data) {
   const polygons = [];
-
   function addGeometry(geometry) {
     if (!geometry) return;
-
-    if (geometry.type === "Polygon") {
-      polygons.push(geometry.coordinates);
-    }
-
-    if (geometry.type === "MultiPolygon") {
-      polygons.push(...geometry.coordinates);
-    }
-
-    if (geometry.type === "GeometryCollection") {
+    if (geometry.type === "Polygon") polygons.push(geometry.coordinates);
+    else if (geometry.type === "MultiPolygon") polygons.push(...geometry.coordinates);
+    else if (geometry.type === "GeometryCollection") {
       geometry.geometries.forEach(addGeometry);
     }
   }
-
   function walk(item) {
     if (!item) return;
-
-    if (item.type === "FeatureCollection") {
-      item.features.forEach(walk);
-    } else if (item.type === "Feature") {
-      addGeometry(item.geometry);
-    } else {
-      addGeometry(item);
-    }
+    if (item.type === "FeatureCollection") item.features.forEach(walk);
+    else if (item.type === "Feature") addGeometry(item.geometry);
+    else addGeometry(item);
   }
-
   walk(data);
   return polygons;
 }
 
-// 地図を作成する
+// 上の左側に離れている「数マスだけ」の小さな集まりを除外する
+// ほかの陸地は残す（最大の陸地だけに限定しない）
+function removeTinyUpperLeftIslands(cells, rows, cols) {
+  const visited = new Uint8Array(cells.length);
+  const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const groups = [];
+
+  for (let start = 0; start < cells.length; start++) {
+    if (!cells[start] || visited[start]) continue;
+    const queue = [start];
+    const group = [];
+    visited[start] = 1;
+    let minRow = rows;
+    let maxRow = 0;
+    let minCol = cols;
+    let maxCol = 0;
+
+    for (let head = 0; head < queue.length; head++) {
+      const index = queue[head];
+      group.push(index);
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      minRow = Math.min(minRow, row);
+      maxRow = Math.max(maxRow, row);
+      minCol = Math.min(minCol, col);
+      maxCol = Math.max(maxCol, col);
+      for (const [dr, dc] of directions) {
+        const nr = row + dr;
+        const nc = col + dc;
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+        const next = nr * cols + nc;
+        if (cells[next] && !visited[next]) {
+          visited[next] = 1;
+          queue.push(next);
+        }
+      }
+    }
+    groups.push({ group, minRow, maxRow, minCol, maxCol });
+  }
+
+  // 本体との位置関係から「左上」を判断する
+  const main = groups.reduce((a, b) =>
+    !a || b.group.length > a.group.length ? b : a, null);
+  if (!main) return;
+
+  // 本体より左上にあり、8マス以下の離れた集まりだけ削除
+  for (const item of groups) {
+    if (item === main) continue;
+    if (item.group.length <= 8 &&
+        item.maxRow < main.minRow &&
+        item.maxCol < main.minCol) {
+      item.group.forEach(index => { cells[index] = 0; });
+    }
+  }
+}
+
 async function createFukuokaMap() {
   try {
     const response = await fetch(GEOJSON_URL);
-
-    if (!response.ok) {
-      throw new Error("地図データを取得できませんでした");
-    }
-
+    if (!response.ok) throw new Error("地図データの取得に失敗しました");
     const geojson = await response.json();
-    /* ===== 離れた小さな島を除外する ===== */
+    const polygons = collectPolygons(geojson);
+    if (!polygons.length) throw new Error("輪郭データが見つかりません");
 
-// GeoJSONから福岡市の形を取得
-const allPolygons = collectPolygons(geojson);
-
-// ポリゴンの外側の輪郭の面積を計算
-function getPolygonArea(polygon) {
-  const ring = polygon[0];
-  let area = 0;
-
-  for (let i = 0; i < ring.length; i++) {
-    const j = (i + 1) % ring.length;
-
-    area +=
-      ring[i][0] * ring[j][1] -
-      ring[j][0] * ring[i][1];
-  }
-
-  return Math.abs(area / 2);
-}
-
-// 一番大きな陸地だけを表示する
-const polygons = allPolygons.length
-  ? [allPolygons.reduce((largest, current) =>
-      getPolygonArea(current) > getPolygonArea(largest)
-        ? current
-        : largest
-    )]
-  : [];
-
-    if (!polygons.length) {
-      throw new Error("地図の形を読み取れませんでした");
-    }
-
-    // 全ての座標を取得する
-    const points = polygons.flatMap(polygon =>
-      polygon.flatMap(ring => ring)
-    );
-
+    // すべての陸地の座標を使う。最大の1つに絞らない
+    const points = polygons.flatMap(polygon => polygon.flatMap(ring => ring));
     const xs = points.map(point => point[0]);
     const ys = points.map(point => point[1]);
-
     const minX = Math.min(...xs);
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
 
-    // 地図の縦横比から行数を決める
-    const centerLatitude = (minY + maxY) / 2;
-    const longitudeScale =
-      Math.cos(centerLatitude * Math.PI / 180);
-
-    const mapWidth = (maxX - minX) * longitudeScale;
+    // 経度を緯度に合わせて補正し、地図の形が伸びないようにする
+    const latitude = (minY + maxY) / 2;
+    const scaleX = Math.cos(latitude * Math.PI / 180);
+    const mapWidth = (maxX - minX) * scaleX;
     const mapHeight = maxY - minY;
+    const MAP_ROWS = Math.max(1, Math.round(MAP_COLUMNS * mapHeight / mapWidth));
 
-    const MAP_ROWS = Math.max(
-      1,
-      Math.round(MAP_COLUMNS * mapHeight / mapWidth)
-    );
-
-    // 地図の縦横比を設定
-    pixelMap.style.gridTemplateColumns =
-      `repeat(${MAP_COLUMNS}, minmax(0, 1fr))`;
-
-    pixelMap.style.gridTemplateRows =
-      `repeat(${MAP_ROWS}, minmax(0, 1fr))`;
-
-    pixelMap.style.aspectRatio =
-      `${MAP_COLUMNS} / ${MAP_ROWS}`;
-
-    pixelMap.innerHTML = "";
-
-    const fragment = document.createDocumentFragment();
-
-    // 各マスの中心が福岡市内かを調べる
+    // 各マスの中心が福岡市の中にあるか判定
+    const cells = new Uint8Array(MAP_COLUMNS * MAP_ROWS);
     for (let row = 0; row < MAP_ROWS; row++) {
       for (let col = 0; col < MAP_COLUMNS; col++) {
-
-        const longitude =
-          minX + (col + 0.5) / MAP_COLUMNS * (maxX - minX);
-
-        const latitude =
-          maxY - (row + 0.5) / MAP_ROWS * (maxY - minY);
-
-        const inside = polygons.some(polygon =>
-          pointInPolygon([longitude, latitude], polygon)
-        );
-
-        const cell = document.createElement("div");
-        cell.className = inside
-          ? "map-cell land"
-          : "map-cell";
-
-        // 次の色塗り機能で使う座標
-        cell.dataset.x = col;
-        cell.dataset.y = row;
-
-        fragment.appendChild(cell);
+        const longitude = minX + (col + 0.5) / MAP_COLUMNS * (maxX - minX);
+        const latitude = maxY - (row + 0.5) / MAP_ROWS * (maxY - minY);
+        if (polygons.some(polygon => pointInPolygon([longitude, latitude], polygon))) {
+          cells[row * MAP_COLUMNS + col] = 1;
+        }
       }
     }
 
-    pixelMap.appendChild(fragment);
-    mapStatus.textContent = "";
+    // 左上の離れた数マスだけを除外
+    removeTinyUpperLeftIslands(cells, MAP_ROWS, MAP_COLUMNS);
 
+    // 残った陸地を囲む範囲を求め、余分な余白を取り除く
+    let top = MAP_ROWS, bottom = -1, left = MAP_COLUMNS, right = -1;
+    for (let row = 0; row < MAP_ROWS; row++) {
+      for (let col = 0; col < MAP_COLUMNS; col++) {
+        if (!cells[row * MAP_COLUMNS + col]) continue;
+        top = Math.min(top, row);
+        bottom = Math.max(bottom, row);
+        left = Math.min(left, col);
+        right = Math.max(right, col);
+      }
+    }
+    if (bottom < top) throw new Error("地図のマスが作れませんでした");
+
+    const visibleCols = right - left + 1;
+    const visibleRows = bottom - top + 1;
+    pixelMap.style.gridTemplateColumns = `repeat(${visibleCols}, minmax(0, 1fr))`;
+    pixelMap.style.gridTemplateRows = `repeat(${visibleRows}, minmax(0, 1fr))`;
+    pixelMap.style.aspectRatio = `${visibleCols} / ${visibleRows}`;
+
+    // 地図本体を中央に配置する
+    const fragment = document.createDocumentFragment();
+    for (let row = top; row <= bottom; row++) {
+      for (let col = left; col <= right; col++) {
+        const cell = document.createElement("div");
+        cell.className = cells[row * MAP_COLUMNS + col] ? "map-cell land" : "map-cell";
+        cell.dataset.x = col;
+        cell.dataset.y = row;
+        fragment.appendChild(cell);
+      }
+    }
+    pixelMap.replaceChildren(fragment);
+    mapStatus.textContent = "";
   } catch (error) {
     console.error(error);
-    mapStatus.textContent =
-      "地図を表示できませんでした。データの取得先を確認してください。";
+    mapStatus.textContent = "地図を表示できませんでした。地図データの取得先を確認してください。";
   }
 }
 
-// ページを開いたら地図を作成
+// ページを開いたら地図を作る
 createFukuokaMap();
 
   </script>
