@@ -250,6 +250,51 @@
         padding: 15px;
       }
     }
+    /* ===== 福岡市ドット地図 ===== */
+
+/* 地図を表示するエリア */
+.map-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 450px;
+}
+
+/* ドット地図全体 */
+#pixel-map {
+  display: grid;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1;
+  gap: 0;
+}
+
+/* 地図を構成する1マス */
+.map-cell {
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 福岡市の内側だけ白色にする */
+.map-cell.land {
+  background: white;
+}
+
+/* 地図の読み込み状態 */
+#map-status {
+  color: #789681;
+  text-align: center;
+}
+
+/* スマホ対応 */
+@media (max-width: 850px) {
+  #pixel-map {
+    max-width: 100%;
+  }
+}
   </style>
 </head>
 
@@ -281,12 +326,11 @@
 
       <div class="map-area" id="map-area">
 
-        <!-- 次のステップでドット地図を追加 -->
-        <div class="map-message">
-          🗺️<br>
-          ここに福岡市の<br>
-          ドット地図を表示します
-        </div>
+        <!-- 福岡市のドット地図を表示する場所 -->
+<div class="map-area" id="map-area">
+  <div id="pixel-map"></div>
+  <p id="map-status">福岡市の地図を読み込み中...</p>
+</div>
 
       </div>
 
@@ -407,6 +451,193 @@
 
     // 最初の達成度を表示
     updateProgress();
+
+/* ===== 福岡市のドット地図を作成 ===== */
+
+// 前に使用した福岡市のGeoJSON取得先
+const GEOJSON_URL =
+  "https://wapi.bodik.jp/estat/polygon?organ_code=401307";
+
+// 地図の横方向のマス数
+const MAP_COLUMNS = 100;
+
+// 地図の表示場所
+const pixelMap = document.getElementById("pixel-map");
+const mapStatus = document.getElementById("map-status");
+
+// 点がポリゴンの内側にあるかを調べる
+function pointInRing(point, ring) {
+  const [x, y] = point;
+  let inside = false;
+
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0];
+    const yi = ring[i][1];
+    const xj = ring[j][0];
+    const yj = ring[j][1];
+
+    const crosses =
+      (yi > y) !== (yj > y) &&
+      x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+
+    if (crosses) {
+      inside = !inside;
+    }
+  }
+
+  return inside;
+}
+
+// 穴のあるポリゴンにも対応する
+function pointInPolygon(point, polygon) {
+  if (!polygon.length) return false;
+
+  // 外側の輪郭に入っていなければ対象外
+  if (!pointInRing(point, polygon[0])) {
+    return false;
+  }
+
+  // 内側の穴に入っている場合は対象外
+  for (let i = 1; i < polygon.length; i++) {
+    if (pointInRing(point, polygon[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+// GeoJSONのPolygonとMultiPolygonを統一して扱う
+function collectPolygons(data) {
+  const polygons = [];
+
+  function addGeometry(geometry) {
+    if (!geometry) return;
+
+    if (geometry.type === "Polygon") {
+      polygons.push(geometry.coordinates);
+    }
+
+    if (geometry.type === "MultiPolygon") {
+      polygons.push(...geometry.coordinates);
+    }
+
+    if (geometry.type === "GeometryCollection") {
+      geometry.geometries.forEach(addGeometry);
+    }
+  }
+
+  function walk(item) {
+    if (!item) return;
+
+    if (item.type === "FeatureCollection") {
+      item.features.forEach(walk);
+    } else if (item.type === "Feature") {
+      addGeometry(item.geometry);
+    } else {
+      addGeometry(item);
+    }
+  }
+
+  walk(data);
+  return polygons;
+}
+
+// 地図を作成する
+async function createFukuokaMap() {
+  try {
+    const response = await fetch(GEOJSON_URL);
+
+    if (!response.ok) {
+      throw new Error("地図データを取得できませんでした");
+    }
+
+    const geojson = await response.json();
+    const polygons = collectPolygons(geojson);
+
+    if (!polygons.length) {
+      throw new Error("地図の形を読み取れませんでした");
+    }
+
+    // 全ての座標を取得する
+    const points = polygons.flatMap(polygon =>
+      polygon.flatMap(ring => ring)
+    );
+
+    const xs = points.map(point => point[0]);
+    const ys = points.map(point => point[1]);
+
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+
+    // 地図の縦横比から行数を決める
+    const centerLatitude = (minY + maxY) / 2;
+    const longitudeScale =
+      Math.cos(centerLatitude * Math.PI / 180);
+
+    const mapWidth = (maxX - minX) * longitudeScale;
+    const mapHeight = maxY - minY;
+
+    const MAP_ROWS = Math.max(
+      1,
+      Math.round(MAP_COLUMNS * mapHeight / mapWidth)
+    );
+
+    // 地図の縦横比を設定
+    pixelMap.style.gridTemplateColumns =
+      `repeat(${MAP_COLUMNS}, minmax(0, 1fr))`;
+
+    pixelMap.style.gridTemplateRows =
+      `repeat(${MAP_ROWS}, minmax(0, 1fr))`;
+
+    pixelMap.style.aspectRatio =
+      `${MAP_COLUMNS} / ${MAP_ROWS}`;
+
+    pixelMap.innerHTML = "";
+
+    const fragment = document.createDocumentFragment();
+
+    // 各マスの中心が福岡市内かを調べる
+    for (let row = 0; row < MAP_ROWS; row++) {
+      for (let col = 0; col < MAP_COLUMNS; col++) {
+
+        const longitude =
+          minX + (col + 0.5) / MAP_COLUMNS * (maxX - minX);
+
+        const latitude =
+          maxY - (row + 0.5) / MAP_ROWS * (maxY - minY);
+
+        const inside = polygons.some(polygon =>
+          pointInPolygon([longitude, latitude], polygon)
+        );
+
+        const cell = document.createElement("div");
+        cell.className = inside
+          ? "map-cell land"
+          : "map-cell";
+
+        // 次の色塗り機能で使う座標
+        cell.dataset.x = col;
+        cell.dataset.y = row;
+
+        fragment.appendChild(cell);
+      }
+    }
+
+    pixelMap.appendChild(fragment);
+    mapStatus.textContent = "";
+
+  } catch (error) {
+    console.error(error);
+    mapStatus.textContent =
+      "地図を表示できませんでした。データの取得先を確認してください。";
+  }
+}
+
+// ページを開いたら地図を作成
+createFukuokaMap();
 
   </script>
 
