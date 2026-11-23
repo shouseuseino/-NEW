@@ -553,7 +553,35 @@ async function createFukuokaMap() {
     }
 
     const geojson = await response.json();
-    const polygons = collectPolygons(geojson);
+    /* ===== 離れた小さな島を除外する ===== */
+
+// GeoJSONから福岡市の形を取得
+const allPolygons = collectPolygons(geojson);
+
+// ポリゴンの外側の輪郭の面積を計算
+function getPolygonArea(polygon) {
+  const ring = polygon[0];
+  let area = 0;
+
+  for (let i = 0; i < ring.length; i++) {
+    const j = (i + 1) % ring.length;
+
+    area +=
+      ring[i][0] * ring[j][1] -
+      ring[j][0] * ring[i][1];
+  }
+
+  return Math.abs(area / 2);
+}
+
+// 一番大きな陸地だけを表示する
+const polygons = allPolygons.length
+  ? [allPolygons.reduce((largest, current) =>
+      getPolygonArea(current) > getPolygonArea(largest)
+        ? current
+        : largest
+    )]
+  : [];
 
     if (!polygons.length) {
       throw new Error("地図の形を読み取れませんでした");
