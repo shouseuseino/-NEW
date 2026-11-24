@@ -305,6 +305,12 @@
     max-width: 100%;
   }
 }
+/* ===== ドットゲーム風の細いマス目 ===== */
+
+/* 白いマスにも緑のマスにも細い線を付ける */
+.map-cell.land {
+  box-shadow: inset 0 0 0 0.25px #a3bca0;
+}
   </style>
 </head>
 
@@ -462,7 +468,7 @@
 
 // 福岡市のGeoJSONデータ
 const GEOJSON_URL = "https://wapi.bodik.jp/estat/polygon?organ_code=401307";
-const MAP_COLUMNS = 100;
+const MAP_COLUMNS = 200;
 const pixelMap = document.getElementById("pixel-map");
 const mapStatus = document.getElementById("map-status");
 
