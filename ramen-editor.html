@@ -185,7 +185,7 @@ function removeTinyUpperLeftIslands(cells, rows, cols) {
   // 本体より左上にあり、8マス以下の離れた集まりだけ削除
   for (const item of groups) {
     if (item === main) continue;
-    if (item.group.length <= 8 &&
+    if (item.group.length <= 32 &&
         item.maxRow < main.minRow &&
         item.maxCol < main.minCol) {
       item.group.forEach(index => { cells[index] = 0; });
