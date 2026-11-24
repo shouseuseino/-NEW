@@ -35,12 +35,12 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 button.active { background:#245b36; outline:3px solid #a1d6a8; }
 #status { min-height:1.4em; font-size:.9rem; color:#3c7651; overflow-wrap:anywhere; }
 @media(max-width:800px) { main { grid-template-columns:1fr; } .map-area { min-height:300px; } }
-/* ===== ドットゲーム風の細いマス目 ===== */
-
-/* 白いマスにも緑のマスにも細い線を付ける */
-.map-cell.land {
-  box-shadow: inset 0 0 0 0.25px #a3bca0;
-}
+/* 細いマス目と店舗別の色 */
+.map-cell.land { box-shadow: inset 0 0 0 0.25px #a3bca0; }
+#coverage-bar { width:100%; accent-color:#3c7651; }
+#legend { display:grid; gap:5px; font-size:.85rem; }
+.legend-row { display:flex; align-items:center; gap:8px; }
+.swatch { width:14px; height:14px; border:1px solid #999; border-radius:2px; }
 </style>
 </head>
 <body>
@@ -55,11 +55,12 @@ button.active { background:#245b36; outline:3px solid #a1d6a8; }
       <div id="pixel-map"></div>
       <p id="map-status">福岡市の地図を読み込み中...</p>
     </div>
-    <p class="hint">地図の白いマスをクリック・ドラッグして範囲を指定できます。スマホでは指でなぞれます。緑色が選択中の店舗の範囲です。</p>
+    <p class="hint">地図の白いマスをクリック・ドラッグして範囲を指定できます。スマホでは指でなぞれます。店舗ごとの色で範囲を表示します。他店舗のマスは上書きできません。</p>
   </section>
   <aside class="panel controls">
     <div><label for="shop">編集する店舗</label><select id="shop"></select></div>
     <div><label>編集モード</label><div class="button-grid"><button id="paint" class="active" type="button">🖌 塗る</button><button id="erase" class="secondary" type="button">消す</button></div></div>
+    <div><strong id="coverage">範囲設定率：読み込み中</strong><progress id="coverage-bar" max="100" value="0"></progress><p id="remaining"></p><div id="legend"></div></div>
     <p id="count">選択中の店舗：0マス</p>
     <button id="save" type="button">このブラウザに一時保存</button>
     <button id="export" type="button">JSONファイルを書き出す</button>
@@ -182,7 +183,7 @@ function removeTinyUpperLeftIslands(cells, rows, cols) {
     !a || b.group.length > a.group.length ? b : a, null);
   if (!main) return;
 
-  // 本体より左上にあり、8マス以下の離れた集まりだけ削除
+  // 本体より左上にあり、32マス以下の離れた集まりだけ削除
   for (const item of groups) {
     if (item === main) continue;
     if (item.group.length <= 32 &&
@@ -277,7 +278,7 @@ async function createFukuokaMap() {
 const shopSelect = document.getElementById("shop");
 const status = document.getElementById("status");
 const count = document.getElementById("count");
-const storageKey = "fukuoka-ramen-zones-v1";
+const storageKey = "fukuoka-ramen-zones-v2-200";
 let mode = "paint";
 let dragging = false;
 let zones = Object.fromEntries(ramenShops.map(name => [name, []]));
@@ -293,29 +294,62 @@ function normalized(input) {
   return result;
 }
 try { const saved = localStorage.getItem(storageKey); if (saved) zones = normalized(JSON.parse(saved)); } catch(e) { status.textContent = "一時保存データを読み込めませんでした"; }
+// 店舗ごとの色と陸地の座標を管理する
+const colors = ["#74bd82","#efbd69","#82b6e5","#d5a1dd","#ed9696","#70c9bc","#e2d477","#a3a6de","#b6d88a","#d9aa83","#8bcbd9","#c4a6cf","#e7b0c8","#72938a","#e8cf9b"];
+let landCells = new Map();
+let owners = new Map();
+let counts = new Map();
+const legend = document.getElementById("legend");
+const legendLabels = new Map();
+ramenShops.forEach((name,i) => {
+  const row = document.createElement("div"); row.className = "legend-row";
+  const swatch = document.createElement("span"); swatch.className = "swatch"; swatch.style.background = colors[i];
+  const label = document.createElement("span"); row.append(swatch,label); legend.append(row); legendLabels.set(name,label);
+});
+// 塗り残しと設定率を更新する（海は数えない）
+function updateCounts() {
+  const total = landCells.size;
+  const percent = total ? owners.size / total * 100 : 0;
+  document.getElementById("coverage").textContent = `範囲設定率：${owners.size === total && total ? "100" : (Math.floor(percent*10)/10).toFixed(1)}%`;
+  document.getElementById("coverage-bar").value = percent;
+  document.getElementById("remaining").textContent = `塗り残し：${total-owners.size} / ${total} マス`;
+  count.textContent = `選択中の店舗：${counts.get(shopSelect.value)||0}マス`;
+  for (const name of ramenShops) legendLabels.get(name).textContent = `${name}：${counts.get(name)||0}マス`;
+}
+// 保存データを読み込み、重複や陸地以外の座標を除外する
 function renderPaint() {
   if (!mapReady) return;
-  const selected = new Set(zones[shopSelect.value] || []);
-  const others = new Set(ramenShops.filter(n => n !== shopSelect.value).flatMap(n => zones[n]));
-  pixelMap.querySelectorAll(".map-cell.land").forEach(cell => {
-    const key = `${cell.dataset.x},${cell.dataset.y}`;
-    cell.classList.toggle("selected", selected.has(key));
-    cell.classList.toggle("other", !selected.has(key) && others.has(key));
-  });
-  count.textContent = `選択中の店舗：${selected.size}マス`;
+  landCells = new Map(Array.from(pixelMap.querySelectorAll(".map-cell.land"), cell => [`${cell.dataset.x},${cell.dataset.y}`,cell]));
+  owners = new Map(); counts = new Map();
+  for (const name of ramenShops) {
+    zones[name] = zones[name].filter(key => {
+      if (!landCells.has(key) || owners.has(key)) return false;
+      owners.set(key,name); return true;
+    });
+    counts.set(name,zones[name].length);
+  }
+  for (const [key,cell] of landCells) {
+    const name = owners.get(key);
+    cell.style.backgroundColor = name ? colors[ramenShops.indexOf(name)] : "white";
+  }
+  updateCounts();
 }
+// 編集したマスだけを更新して動作を軽くする
 function editCell(cell) {
-  if (!cell || !cell.classList.contains("land")) return;
+  if (!mapReady || !cell || !cell.classList.contains("land")) return;
   const key = `${cell.dataset.x},${cell.dataset.y}`;
   const name = shopSelect.value;
+  const owner = owners.get(key);
   if (mode === "paint") {
-    // 1つのマスが複数店舗に重ならないようにする
-    for (const other of ramenShops) if (other !== name) zones[other] = zones[other].filter(x => x !== key);
-    if (!zones[name].includes(key)) zones[name].push(key);
+    if (owner) { if (owner !== name) status.textContent = `${owner}の範囲です。上書きできません。`; return; }
+    owners.set(key,name); zones[name].push(key);
+    cell.style.backgroundColor = colors[ramenShops.indexOf(name)];
   } else {
-    zones[name] = zones[name].filter(x => x !== key);
+    if (owner !== name) return;
+    owners.delete(key); zones[name] = zones[name].filter(x => x !== key);
+    cell.style.backgroundColor = "white";
   }
-  renderPaint();
+  counts.set(name,zones[name].length); status.textContent = ""; updateCounts();
 }
 function cellAt(event) {
   const target = document.elementFromPoint(event.clientX,event.clientY);
@@ -329,7 +363,7 @@ pixelMap.addEventListener("pointerdown", event => {
 });
 pixelMap.addEventListener("pointermove", event => { if (dragging) editCell(cellAt(event)); });
 for (const eventName of ["pointerup","pointercancel","lostpointercapture"]) pixelMap.addEventListener(eventName, () => { dragging = false; });
-shopSelect.addEventListener("change",renderPaint);
+shopSelect.addEventListener("change",()=>{ if(mapReady) updateCounts(); });
 for (const type of ["paint","erase"]) document.getElementById(type).addEventListener("click",() => {
   mode = type;
   for (const t of ["paint","erase"]) {
@@ -338,10 +372,12 @@ for (const type of ["paint","erase"]) document.getElementById(type).addEventList
   }
 });
 document.getElementById("save").addEventListener("click",() => {
+  if (!mapReady) return;
   try { localStorage.setItem(storageKey,JSON.stringify(zones)); status.textContent = "このブラウザに一時保存しました"; }
   catch(e) { status.textContent = "保存できませんでした。JSONを書き出してください"; }
 });
 document.getElementById("export").addEventListener("click",() => {
+  if (!mapReady) return;
   const blob = new Blob([JSON.stringify({version:1,columns:MAP_COLUMNS,zones},null,2)],{type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href=url; a.download="ramen-zones.json"; a.click();
