@@ -219,3 +219,15 @@ padding-top: 80px;
   /* ロゴを中央に置く */
 }
 }
+/* ジャンル選択ボタンのサイズ調整 */
+.stage-button {
+  width: 340px;
+  max-width: 80%;
+}
+
+/* ボタン画像のサイズを固定 */
+.stage-button-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
