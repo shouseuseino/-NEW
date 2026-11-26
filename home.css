@@ -231,3 +231,53 @@ padding-top: 80px;
   height: auto;
   display: block;
 }
+/* ========================================
+   ホーム画面のスマホ専用デザイン
+   ======================================== */
+
+@media (max-width: 600px) {
+
+  /* スマホ画面全体の背景 */
+  body {
+    margin: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  /* ホーム画面全体の配置 */
+  .home {
+    box-sizing: border-box;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 35px;
+    padding: 20px 0 70px;
+  }
+
+  /* ロゴを配置する場所 */
+  .logo-area {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  /* ロゴ画像を大きくする */
+  .home-logo {
+    width: 85vw;
+    max-width: 420px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ジャンル選択ボタンの大きさ */
+  .home a[href="genre-select.html"] {
+    width: 90vw !important;
+    max-width: 420px !important;
+    margin: 0 auto;
+  }
+
+}

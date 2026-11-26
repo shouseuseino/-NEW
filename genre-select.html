@@ -222,6 +222,40 @@
     width: 200px;
   }
 }
+/* ===== ジャンル選択のスマホ専用設定 ===== */
+@media (max-width: 600px) {
+
+  /* 背景と画面全体の設定 */
+  body {
+    min-height: 100dvh;
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+  }
+
+  /* タイトルとボタン画像 */
+  img {
+    width: 90vw;
+    max-width: 450px;
+    height: auto;
+    display: block;
+    margin: 5px auto;
+  }
+
+  /* タイトル画像 */
+  img[src*="title"] {
+    width: 85vw;
+    margin-bottom: 20px;
+  }
+
+  /* ホームに戻るボタン */
+  img[src*="home"] {
+    width: 58vw;
+    max-width: 260px;
+    margin-top: 18px;
+  }
+
+}
   </style>
 </head>
 

@@ -195,6 +195,46 @@
     width: 280px;
   }
 }
+/* ===== エリア選択のスマホ専用設定 ===== */
+@media (max-width: 600px) {
+
+  /* 背景と画面全体の設定 */
+  body {
+    min-height: 100dvh;
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+  }
+
+  /* AREA SELECTのタイトル */
+  img[src*="area-title"] {
+    width: 88vw;
+    max-width: 450px;
+    height: auto;
+    display: block;
+    margin: 0 auto 18px;
+  }
+
+  /* 福岡市エリアと未解放ボタン */
+  img[src*="fukuoka-city-button"],
+  img[src*="area-locked"] {
+    width: 92vw;
+    max-width: 460px;
+    height: auto;
+    display: block;
+    margin: 6px auto;
+  }
+
+  /* ジャンルに戻るボタン */
+  img[src*="genre-back"] {
+    width: 60vw;
+    max-width: 280px;
+    height: auto;
+    display: block;
+    margin: 20px auto 0;
+  }
+
+}
   </style>
 </head>
 
