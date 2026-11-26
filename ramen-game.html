@@ -389,6 +389,69 @@ body {
   }
 
 }
+/* ========================================
+   レトロゲーム風の太い金色ドットフレーム
+   ======================================== */
+
+.map-panel,
+.progress-panel,
+.shop-panel {
+
+  /* 枠の内側のクリーム色 */
+  background: #fff5d6;
+  background-clip: padding-box;
+
+  /* 今までの枠画像を無効にする */
+  border-image: none;
+
+  /* 太い金色の枠 */
+  border: 8px solid #ffd45c;
+  border-radius: 0;
+
+  /* 金色と紺色を重ねて立体感を出す */
+  box-shadow:
+    0 0 0 4px #a76b24,
+    0 0 0 8px #10172e,
+    inset 0 0 0 4px #fff0a1,
+    inset 0 0 0 8px #b17b30,
+    inset 0 0 0 12px #172044;
+
+  /* 四隅を階段状にする */
+  clip-path: polygon(
+    0 16px,
+    8px 16px,
+    8px 8px,
+    16px 8px,
+    16px 0,
+    calc(100% - 16px) 0,
+    calc(100% - 16px) 8px,
+    calc(100% - 8px) 8px,
+    calc(100% - 8px) 16px,
+    100% 16px,
+    100% calc(100% - 16px),
+    calc(100% - 8px) calc(100% - 16px),
+    calc(100% - 8px) calc(100% - 8px),
+    calc(100% - 16px) calc(100% - 8px),
+    calc(100% - 16px) 100%,
+    16px 100%,
+    16px calc(100% - 8px),
+    8px calc(100% - 8px),
+    8px calc(100% - 16px),
+    0 calc(100% - 16px)
+  );
+
+  /* 枠と中身の間隔 */
+  padding: 24px;
+}
+
+/* スマホ画面用の余白調整 */
+@media (max-width: 850px) {
+  .map-panel,
+  .progress-panel,
+  .shop-panel {
+    padding: 18px;
+  }
+}
 </style>
 </head>
 
