@@ -331,6 +331,64 @@ body {
   height: auto;
   display: block;
 }
+/* ========================================
+   レトロゲーム風の金色フレーム
+   ======================================== */
+
+/* 地図・達成度・店舗一覧の共通設定 */
+.map-panel,
+.progress-panel,
+.shop-panel {
+
+  /* 枠の内側のクリーム色 */
+  background: #fff5d6;
+  background-clip: padding-box;
+
+  /* 金色のフレーム画像 */
+  border: 24px solid transparent;
+  border-image: url("images/gold-frame.png") 25% stretch;
+
+  /* 元の丸みをなくす */
+  border-radius: 0;
+
+  /* 枠の内側の余白 */
+  padding: 12px;
+
+  /* 文字の色 */
+  color: #172044;
+}
+
+/* ========================================
+   地図エリアのデザイン
+   ======================================== */
+
+.map-area {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 10px;
+}
+
+/* 地図のタイトル */
+.map-panel h2 {
+  color: #172044;
+  font-weight: bold;
+}
+
+/* ========================================
+   スマホ画面用の調整
+   ======================================== */
+
+@media (max-width: 850px) {
+
+  .map-panel,
+  .progress-panel,
+  .shop-panel {
+    border-width: 16px;
+    padding: 10px;
+  }
+
+}
 </style>
 </head>
 
