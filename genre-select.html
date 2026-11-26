@@ -175,6 +175,53 @@
     width: 180px;
   }
 }
+/* =================================
+   ジャンル選択画面のサイズ調整
+   ================================= */
+
+/* GENRE SELECTのタイトル */
+.title-image {
+  width: 690px;
+  max-width: 85vw;
+}
+
+/* ラーメン・未解放ボタン */
+.genre-button {
+  width: 690px;
+  max-width: 90vw;
+}
+
+/* ホームに戻るボタン */
+.back-button {
+  width: 260px;
+  max-width: 50vw;
+}
+
+/* 全体の余白を調整 */
+.container {
+  gap: 15px;
+  padding: 15px;
+}
+
+/* ボタン同士の間隔 */
+.genre-list {
+  gap: 6px;
+}
+
+/* スマホ画面用の調整 */
+@media (max-width: 600px) {
+  .title-image {
+    width: 420px;
+  }
+
+  .genre-button {
+    width: 450px;
+  }
+
+  .back-button {
+    width: 200px;
+  }
+}
   </style>
 </head>
 
