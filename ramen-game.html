@@ -603,6 +603,33 @@ body {
   font-size: 13px;
   font-weight: bold;
 }
+/* ========================================
+   QR読み込みボタンの画像デザイン
+   ======================================== */
+
+/* 元のボタンの背景や枠をなくす */
+.qr-button {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+/* ボタン画像の大きさ */
+.qr-button img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 読み込み準備中の表示 */
+.qr-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>
 </head>
 
@@ -674,7 +701,11 @@ body {
       </section>
 
       <!-- ボタンを押したときだけカメラを起動 -->
-      <button class="qr-button" id="qr-start" disabled>📷 QRコードを読み取る</button>
+     <!-- QR読み込みボタンの画像 -->
+<button class="qr-button" id="qr-start" disabled>
+  <img src="images/qr-button.png"
+       alt="QRを読み取る">
+</button>
       <div id="qr-panel" hidden>
         <div id="qr-reader"></div>
         <button class="back-button" id="qr-stop" type="button">カメラを閉じる</button>
