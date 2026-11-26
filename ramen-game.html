@@ -973,6 +973,23 @@ body {
   }
 
 }
+/* ===== 店舗一覧の空白をなくす ===== */
+@media (min-width: 851px) {
+
+  .shop-list {
+    /* パネルの下まで店舗一覧を広げる */
+    flex: 1;
+    max-height: none;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .shop-panel {
+    /* 店舗一覧が地図より大きくならないようにする */
+    contain: size;
+  }
+
+}
 </style>
 </head>
 
