@@ -148,7 +148,53 @@
       }
 
     }
+/* =================================
+   タイトルとボタンを大きくする
+   ================================= */
 
+/* AREA SELECTのタイトル */
+.title-image {
+  width: 720px;
+  max-width: 85vw;
+}
+
+/* 福岡市エリア・未解放ボタン */
+.area-button {
+  width: 750px;
+  max-width: 90vw;
+}
+
+/* ジャンルに戻るボタン */
+.back-button {
+  width: 400px;
+  max-width: 65vw;
+}
+
+/* 全体の間隔を少し狭くする */
+.container {
+  gap: 12px;
+  padding: 15px;
+}
+
+/* ボタン同士の間隔 */
+.area-list {
+  gap: 4px;
+}
+
+/* スマホ画面用の調整 */
+@media (max-width: 600px) {
+  .title-image {
+    width: 420px;
+  }
+
+  .area-button {
+    width: 450px;
+  }
+
+  .back-button {
+    width: 280px;
+  }
+}
   </style>
 </head>
 
