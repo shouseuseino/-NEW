@@ -669,6 +669,163 @@ body {
   }
 
 }
+/* ========================================
+   ゲーム画面の最終レイアウト調整
+   ======================================== */
+
+/* 右上の白いタイトルを非表示 */
+.stage-title {
+  display: none;
+}
+
+/* ===== PC画面の調整 ===== */
+@media (min-width: 851px) {
+
+  /* 上部のタイトルと余白 */
+  .game-header {
+    padding: 5px 20px;
+  }
+
+  .game-title-image {
+    width: 460px;
+  }
+
+  /* 地図と右側のパネルの配置 */
+  .main-area {
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+    margin: 5px auto;
+  }
+
+  /* 地図の外枠 */
+  .map-panel {
+    min-height: 0;
+    padding: 20px;
+  }
+
+  /* 地図のタイトル */
+  .map-panel h2 {
+    font-size: 18px;
+    margin: 0 0 8px;
+  }
+
+  /* 地図周辺の余白 */
+  .map-area {
+    min-height: 0;
+    padding: 5px;
+  }
+
+  /* 地図の大きさ */
+  #pixel-map {
+    max-width: min(420px, 48vh);
+  }
+
+  /* 地図下の不要な余白を消す */
+  #map-status:empty {
+    display: none;
+  }
+
+  /* 右側のパネルの間隔 */
+  .right-panel {
+    gap: 12px;
+  }
+
+  /* 達成度パネル */
+  .progress-panel {
+    padding: 16px;
+  }
+
+  .progress-panel h2 {
+    font-size: 20px;
+    margin: 0 0 5px;
+  }
+
+  .progress-number {
+    font-size: 26px;
+    margin: 5px 0;
+  }
+
+  .progress-bar {
+    height: 24px;
+  }
+
+  /* 店舗一覧パネル */
+  .shop-panel {
+    padding: 18px;
+  }
+
+  .shop-panel h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  /* 店舗一覧の高さ */
+  .shop-list {
+    max-height: 180px;
+  }
+
+  /* 店舗ごとの余白 */
+  .shop-item {
+    padding: 7px 10px;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  /* QR読み込みボタン */
+  .qr-button {
+    width: 300px;
+    max-width: 100%;
+    align-self: center;
+  }
+
+  /* 戻るボタン */
+  .back-area {
+    margin: 5px auto 10px;
+  }
+
+  .area-back-button {
+    width: 300px;
+  }
+
+  /* QRメッセージの不要な余白を消す */
+  #qr-message:empty {
+    display: none;
+  }
+
+}
+
+/* ===== スマホ画面の調整 ===== */
+@media (max-width: 850px) {
+
+  .game-header {
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .game-title-image {
+    width: 95%;
+  }
+
+  .map-area {
+    min-height: 0;
+    padding: 5px;
+  }
+
+  .right-panel {
+    gap: 15px;
+  }
+
+  .qr-button {
+    width: 300px;
+    max-width: 100%;
+    align-self: center;
+  }
+
+  .back-area {
+    margin: 10px auto 20px;
+  }
+
+}
 </style>
 </head>
 
