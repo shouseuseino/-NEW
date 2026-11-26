@@ -630,6 +630,45 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ========================================
+   エリア選択に戻るボタン
+   ======================================== */
+
+/* ボタンの配置 */
+.back-area {
+  display: flex;
+  justify-content: flex-start;
+  margin: 20px auto 40px;
+}
+
+/* ボタンの大きさ */
+.area-back-button {
+  display: block;
+  width: 400px;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+/* ボタン画像 */
+.area-back-button img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* スマホ画面での大きさ */
+@media (max-width: 850px) {
+
+  .back-area {
+    justify-content: center;
+  }
+
+  .area-back-button {
+    width: 300px;
+  }
+
+}
 </style>
 </head>
 
@@ -716,14 +755,17 @@ body {
 
   </main>
 
-  <!-- ===== エリア選択画面に戻る ===== -->
-  <div class="back-area">
+  <!-- エリア選択画面に戻るボタン -->
+<div class="back-area">
 
-    <a href="ramen-area.html" class="back-button">
-      ◀ ステージ選択に戻る
-    </a>
+  <a href="ramen-area.html" class="area-back-button">
 
-  </div>
+    <img src="images/area-back-button.png"
+         alt="エリア選択に戻る">
+
+  </a>
+
+</div>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script>
