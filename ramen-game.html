@@ -452,6 +452,64 @@ body {
     padding: 18px;
   }
 }
+/* ========================================
+   レトロゲーム風の達成度パネル
+   ======================================== */
+
+/* 達成度パネルの背景 */
+.progress-panel {
+  background: #172344;
+  color: #fff5d6;
+  text-align: center;
+}
+
+/* 達成度のタイトル */
+.progress-panel h2 {
+  color: #ffda66;
+  font-size: 24px;
+  margin: 0 0 12px;
+  text-shadow: 3px 3px #080e20;
+}
+
+/* 達成率と店舗数 */
+.progress-number {
+  color: #fff5d6;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 12px 0;
+  text-shadow: 3px 3px #080e20;
+}
+
+/* 店舗数の文字 */
+.progress-count {
+  font-size: 20px;
+}
+
+/* 12マスの達成度ゲージ */
+.progress-bar {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+
+  height: 30px;
+  padding: 4px;
+
+  background: #080e20;
+  border: 3px solid #dfac42;
+  border-radius: 0;
+}
+
+/* まだ達成していないマス */
+.progress-cell {
+  background: #39425c;
+  min-width: 0;
+}
+
+/* 達成したマス */
+.progress-cell.filled {
+  background: #63c856;
+  box-shadow: inset 0 4px 0 #a3ed79;
+}
 </style>
 </head>
 
@@ -495,16 +553,19 @@ body {
 
         <h2>🏆 達成度</h2>
 
-        <div class="progress-number">
-          <span id="completed-count">0</span> / 12
-        </div>
+       <!-- 達成率と達成した店舗数 -->
+<div class="progress-number">
 
-        <div class="progress-bar">
-          <div
-            class="progress-fill"
-            id="progress-fill"
-          ></div>
-        </div>
+  <span id="progress-percent">0%</span>
+
+  <span class="progress-count">
+    (<span id="completed-count">0</span>/12)
+  </span>
+
+</div>
+
+<!-- 12マスの達成度ゲージ -->
+<div class="progress-bar" id="progress-bar"></div>
 
       </section>
 
@@ -628,19 +689,44 @@ body {
 
     function updateProgress() {
 
-      const completed = completedShops.size;
-      const total = ramenShops.length;
+  // 達成した店舗数と全店舗数
+  const completed = completedShops.size;
+  const total = ramenShops.length;
 
-      // 達成した店舗数を表示
-      document.getElementById("completed-count")
-        .textContent = completed;
+  // 達成率を計算
+  const percentage = Math.round(
+    (completed / total) * 100
+  );
 
-      // 達成度バーを更新
-      const percentage = (completed / total) * 100;
+  // 達成した店舗数を表示
+  document.getElementById("completed-count")
+    .textContent = completed;
 
-      document.getElementById("progress-fill")
-        .style.width = percentage + "%";
+  // 達成率を表示
+  document.getElementById("progress-percent")
+    .textContent = percentage + "%";
+
+  // 達成度ゲージを取得
+  const progressBar =
+    document.getElementById("progress-bar");
+
+  // 古いゲージを消す
+  progressBar.replaceChildren();
+
+  // 12店舗分のマスを作る
+  for (let i = 0; i < total; i++) {
+
+    const cell = document.createElement("div");
+    cell.className = "progress-cell";
+
+    // 達成済みのマスを緑色にする
+    if (i < completed) {
+      cell.classList.add("filled");
     }
+
+    progressBar.appendChild(cell);
+  }
+}
 
     // 最初の達成度を表示
     updateProgress();
