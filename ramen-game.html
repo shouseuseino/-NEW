@@ -826,6 +826,153 @@ body {
   }
 
 }
+/* ========================================
+   ゲーム画面の最終配置
+   ======================================== */
+
+/* QR読み込み時の案内文字 */
+#qr-message {
+  color: #fff5d6;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* ===== PC画面専用 ===== */
+@media (min-width: 851px) {
+
+  /* 画面全体をグリッドで配置 */
+  body {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    grid-template-rows: auto auto auto;
+    column-gap: 20px;
+    row-gap: 10px;
+
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 10px 25px;
+
+    align-content: start;
+  }
+
+  /* 中のパネルを直接配置できるようにする */
+  .main-area,
+  .right-panel {
+    display: contents;
+  }
+
+  /* 左上：タイトル画像 */
+  .game-header {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .game-title-image {
+    width: 460px;
+    max-width: 100%;
+  }
+
+  /* 右上：達成度パネル */
+  .progress-panel {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    padding: 16px;
+  }
+
+  /* 左中央：地図パネル */
+  .map-panel {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .map-area {
+    min-height: 0;
+    padding: 0;
+  }
+
+  /* 地図の形を維持して縮小 */
+  #pixel-map {
+    max-width: min(400px, 43vh);
+  }
+
+  /* 右中央：店舗一覧 */
+  .shop-panel {
+    grid-column: 2;
+    grid-row: 2;
+
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 18px;
+  }
+
+  /* 店舗一覧を縦に広げる */
+  .shop-list {
+    flex: 1;
+    min-height: 0;
+    max-height: 34vh;
+    overflow-y: auto;
+  }
+
+  /* 店舗ごとの大きさ */
+  .shop-item {
+    padding: 7px 10px;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  /* 左下：エリア選択に戻るボタン */
+  .back-area {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .area-back-button {
+    width: 320px;
+  }
+
+  /* 右下：QR読み込みボタン */
+  .qr-button {
+    grid-column: 2;
+    grid-row: 3;
+    width: 300px;
+    max-width: 100%;
+    justify-self: center;
+    align-self: center;
+  }
+
+  /* カメラ画面 */
+  #qr-panel {
+    grid-column: 2;
+    grid-row: 4;
+    background: #172344;
+    padding: 15px;
+    border: 3px solid #ffd45c;
+  }
+
+  /* QR読み込みの案内 */
+  #qr-message {
+    grid-column: 2;
+    grid-row: 5;
+    margin: 0;
+  }
+
+}
 </style>
 </head>
 
